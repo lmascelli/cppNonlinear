@@ -1,21 +1,28 @@
 #include "src/analysis.hpp"
 #include "src/nonlinear.hpp"
 
-mat logistic_map(double n, mat xn, void *args) {
-  double mu = *(double *)args;
-  return mu * xn * (1 - xn);
+mat test_system(double t, mat x, mat param)
+{
+  const double a = 0.04;
+  const double b = 5;
+  const double c = 150;
+  mat ret{
+      a * x(0) + b * x(0) + c - x(1),
+      param(0) * (param(1) * x(0) - x(1))};
+  return ret.t();
 }
 
-int main(int argc, char const *argv[]) {
+mat eventfun(double t, mat x)
+{
+  const double xTH = 30;
+  mat ret = x(0) >= xTH ? mat({0, 1}) : mat({1, 0});
+  return ret.t();
+}
+
+int main(int argc, char const *argv[])
+{
   Analysis a([](Analysis &self) {
-    self.ndata = 1e3;
-    self.ntransient = 2e3;
-    self.nparam = 1e3;
-    self.param_ranges = {2.4, 4};
-    self.x0 = 0.5;
-    self.system = logistic_map;
-    self.type = "discrete";
+
   });
-  a.run();
   return 0;
 }

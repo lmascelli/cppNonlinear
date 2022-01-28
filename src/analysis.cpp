@@ -1,20 +1,23 @@
 #include "analysis.hpp"
 #include "nonlinear.hpp"
 
-Analysis::Analysis(void (*init_func)(Analysis &self)) {
-  init_func(*this);
-  params = linspace(param_ranges(0), param_ranges(1), nparam);
-  x_data = zeros(nparam, ndata);
-  if (type != "discrete" && type != "continue")
-    cout << "analysis type <" << type << "> not valid. Analysis may not work"
-         << endl;
-}
+Analysis::Analysis(void (*init_func)(Analysis &self)) { init_func(*this); }
 
-mat Analysis::transient(bool saveData) {
-  mat ret;
+mat Analysis::transient(mat param, bool saveData, mat *data)
+{
+  if (saveData)
+    *data = mat(x0.n_rows, ntransient);
   double t = t0;
+  mat x = x0;
   double step = (tend - t0) / ntransient;
-  while (t < tend) {
+  uint i = 0;
+  while (t < tend)
+  {
+    x = integrate(system, t, x, param, step);
+    if (saveData)
+    {
+      data->col(i++) = x;
+    }
   }
-  return ret;
+  return x;
 }

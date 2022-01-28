@@ -9,6 +9,5 @@ using std::cout, std::endl, std::string, std::function;
 
 using uint = unsigned int;
 
-mat integrate(function<mat(double, mat, void *)> f, double t0, mat x0,
-              void *args, double h, uint n_steps, string method = "newton");
-
+mat integrate(function<mat(double, mat, mat)> f, double t0, mat x0, mat args,
+              double h, uint n_steps = 10, function<mat(double, mat)> event, string method = "newton");
