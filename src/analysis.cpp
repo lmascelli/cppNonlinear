@@ -4,7 +4,7 @@
 Analysis::Analysis(void (*init_func)(Analysis &self))
 {
   init_func(*this);
-  current = system[manifold(t0, x0)];
+  current_state = manifold(t0, x0);
 }
 
 mat Analysis::transient(mat param, bool saveData, mat **data)
@@ -19,10 +19,6 @@ mat Analysis::transient(mat param, bool saveData, mat **data)
   mat x = x0;
   double step = (t_transient - t0) / (ntransient - 1);
   uint i = 0;
-  event_struct result;
-  result.t = t0;
-  result.x = x;
-  result.event = manifold(t0, x);
   {
     cout << "Initial conditions = " << x
          << "Initial time = " << t0 << endl
@@ -34,13 +30,17 @@ mat Analysis::transient(mat param, bool saveData, mat **data)
   {
     event_struct new_result;
     new_result.event = manifold(t, x);
-    x = integrate(current, t, x, param, step, 10, manifold, &new_result, "newton");
-
-    if (new_result.event != result.event)
+    x = integrate(system, t, x, param, step, 10, manifold, &new_result, "rk3");
+    if (new_result.event == 1)
     {
-      cout << new_result.event << " at t: " << new_result.t << ", x: "
-           << new_result.x << endl;
-      current = system[new_result.event];
+      // cout << "NEW AREA MANIFOLD: " << new_result.event << " at t: " << new_result.t << ", x: "
+      //      << new_result.x << endl;
+      // cout << new_result.event << endl;
+      x = map(new_result.t, new_result.x, param);
+    }
+    else
+    {
+      // cout << "SAME AREA MANIFOLD: " << new_result.x << endl;
     }
     if (saveData)
       (*data)->col(i++) = x;

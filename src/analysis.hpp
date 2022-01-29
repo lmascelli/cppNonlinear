@@ -1,10 +1,9 @@
 #pragma once
 #include <armadillo>
-#include <vector>
 using namespace arma;
 
 #include <string>
-using std::string, std::vector;
+using std::string;
 using uint = unsigned int;
 
 using systemFunction = mat (*)(double, mat, mat);
@@ -43,11 +42,12 @@ public:
   uint ntransient; // number of transient iterations
   uint ndata;      // number of pixel in equilibrium space
 
-  vector<systemFunction> system; // vector of pointer to system
-                                 // functions
+  systemFunction system; // pointer to the system functions
+  systemFunction map;    // pointer to the map function
+
   uint (*manifold)(double, mat); // the switching manifold function
 
 private:
-  systemFunction current; // current function ruling the system
-  mat x_data;             // result of analysis
+  uint current_state; // current function ruling the system
+  mat x_data;         // result of analysis
 };
