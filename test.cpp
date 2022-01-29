@@ -35,8 +35,6 @@ int main(int argc, char const *argv[])
                self.system.push_back(test_mapping);
                self.manifold = eventfun;
                self.x0 = {0, 0};
-               self.param_range = {{0.1, 1}, {0.1, 1}};
-               self.nparams = 1;
                self.ntransient = 1000;
                self.t0 = 0;
                self.t_transient = 10;

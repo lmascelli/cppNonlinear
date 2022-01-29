@@ -1,19 +1,8 @@
 #include "nonlinear.hpp"
 
-Event_struct::Event_struct()
-{
-  x = nullptr;
-}
-
-Event_struct::~Event_struct()
-{
-  if (x)
-    delete x;
-}
-
 mat integrate(mat (*f)(double, mat, mat), double t0, mat x0, mat args,
               double h, uint n_steps, uint (*event)(double, mat),
-              Event_struct *result, string method)
+              event_struct *result, string method)
 {
   double current_state;
   if (event)
@@ -34,7 +23,7 @@ mat integrate(mat (*f)(double, mat, mat), double t0, mat x0, mat args,
         {
           result->event = event(t0, x0);
           result->t = t0;
-          result->x = *x0;
+          result->x = x0;
           return x0;
         }
       }
@@ -55,7 +44,7 @@ mat integrate(mat (*f)(double, mat, mat), double t0, mat x0, mat args,
         {
           result->event = event(t0, x0);
           result->t = t0;
-          result->x = *x0;
+          result->x = x0;
           return x0;
         }
       }

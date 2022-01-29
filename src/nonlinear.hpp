@@ -13,9 +13,7 @@ struct event_struct
 {
     uint event;
     double t;
-    mat *x;
-    Event_struct();
-    ~Event_struct();
+    mat x;
 };
 
 mat integrate(mat (*f)(double, mat, mat),

@@ -19,10 +19,10 @@ mat Analysis::transient(mat param, bool saveData, mat **data)
   mat x = x0;
   double step = (t_transient - t0) / (ntransient - 1);
   uint i = 0;
-  Event_struct result;
+  event_struct result;
   result.t = t0;
-  result.x = *x;
-  result->event = manifold(t0, x);
+  result.x = x;
+  result.event = manifold(t0, x);
   {
     cout << "Initial conditions = " << x
          << "Initial time = " << t0 << endl
