@@ -33,10 +33,8 @@ public:
    * @param data a pointer to a matrix where to save the transient data
    * @return mat with the value at the end of the transient
    */
-  mat transient(mat param, bool saveData = false, mat *data = nullptr);
+  mat transient(mat param, bool saveData = false, mat **data = nullptr);
 
-  mat param_range;    // extremes of the param space
-  uint nparams;       // number of pixels in param space
   double t0;          // initial time
   double t_transient; // final time of the transient
   double tend;        // final time
@@ -50,8 +48,6 @@ public:
   uint (*manifold)(double, mat); // the switching manifold function
 
 private:
-  mat current_param;
   systemFunction current; // current function ruling the system
-  mat params;             // current param value
   mat x_data;             // result of analysis
 };
