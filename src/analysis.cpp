@@ -45,4 +45,20 @@ mat Analysis::transient(mat param, bool saveData, mat **data) {
   return x;
 }
 
-mat Analysis::shooting(mat param, bool saveData, mat **data) { return {}; }
+mat Analysis::shooting(mat param, bool saveData, mat **data) {
+  *data = new mat(current_x.n_rows, ndata);
+  mat x = current_x;
+  double t = t_transient;
+  uint n = 2;
+  mat Iin = eye(n, n);
+
+  bool running = true;
+  for (uint i = 0; i < niter && running; i++) {
+    double step = (tend - t_transient) / ndata;
+    while (t < tend) {
+      event_struct result;
+      x = integrate(system, t, x, param, step, 10, manifold, &result, "rk3");
+    }
+  }
+  return {};
+}

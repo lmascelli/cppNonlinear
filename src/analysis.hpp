@@ -49,6 +49,7 @@ public:
 
   uint ntransient; // number of transient iterations
   uint ndata;      // number of pixel in equilibrium space
+  uint niter;      // max number of shooting iterations
 
   systemFunction system; // pointer to the system functions
   systemFunction map;    // pointer to the map function
