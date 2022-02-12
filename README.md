@@ -7,4 +7,12 @@
 
 ## There is a trade-off between generalization of analysis and the need to get the problem solved in the abstraction level of this work. At this point there is:
 - A nonlinear part reseved to general functions used in analysis like:
-  - An ODE integrating function with <i>Newton</i> and <i>Runge-Kutta 3rd order</i> algorithms 
+  - An ODE integrating function with <i>Newton</i> and <i>Runge-Kutta 3rd order</i> algorithms
+
+## Roadmap:
+  - [X] Structure an analysis class with all data needed for a point in parameter space
+  - [X] Compute the transient
+  - [ ] Compute the period (T) of a periodic traiectory
+  - [ ] Compute the monodomy matrix
+  - [ ] Floquet multiplyers
+  - [ ] Fill the parameter space
