@@ -1,12 +1,8 @@
 #pragma once
-#include <armadillo>
-using namespace arma;
+#include "nonlinear.hpp"
 
 #include <string>
 using std::string;
-using uint = unsigned int;
-
-using systemFunction = mat (*)(double, mat, mat);
 
 class Analysis {
 public:
@@ -51,8 +47,8 @@ public:
   uint ndata;      // number of pixel in equilibrium space
   uint niter;      // max number of shooting iterations
 
-  systemFunction system; // pointer to the system functions
-  systemFunction map;    // pointer to the map function
+  system_func system; // pointer to the system functions
+  system_func map;    // pointer to the map function
 
   uint (*manifold)(double, mat); // the switching manifold function
 

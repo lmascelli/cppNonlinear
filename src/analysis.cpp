@@ -1,5 +1,5 @@
 #include "analysis.hpp"
-#include "nonlinear.hpp"
+#include "utils.hpp"
 
 Analysis::Analysis(void (*init_func)(Analysis &self)) {
   init_func(*this);
@@ -10,19 +10,20 @@ Analysis::Analysis(void (*init_func)(Analysis &self)) {
 mat Analysis::transient(mat param, bool saveData, mat **data) {
   if (saveData) {
     *data = new mat(x0.n_rows, ntransient);
-    cout << "Saving transient data in " << (*data)->n_rows << " X "
-         << (*data)->n_cols << " matrix" << endl;
+    Log::Print() << "Saving transient data in " << (*data)->n_rows << " X "
+                 << (*data)->n_cols << " matrix\n";
   }
   double t = t0;
   mat x = x0;
   double step = (t_transient - t0) / (ntransient - 1);
   uint i = 0;
   {
-    cout << "Initial conditions = " << x << "Initial time = " << t0 << endl
-         << "End transient time = " << t_transient << endl
-         << "Time step = " << step << endl;
+    Log::Print() << "Initial conditions = " << x << "Initial time = " << t0
+                 << endl
+                 << "End transient time = " << t_transient << endl
+                 << "Time step = " << step << endl;
   }
-  cout << "Integrating..." << endl;
+  Log::Print() << "Integrating..." << endl;
   while (t <= t_transient) {
     event_struct new_result;
     new_result.event = manifold(t, x);
@@ -50,7 +51,7 @@ mat Analysis::shooting(mat param, bool saveData, mat **data) {
   mat x = current_x;
   double t = t_transient;
   uint n = 2;
-  mat Iin = eye(n, n);
+  mat Iin = arma::eye(n, n);
 
   bool running = true;
   for (uint i = 0; i < niter && running; i++) {

@@ -1,11 +1,8 @@
 #pragma once
 
 #include <armadillo>
+#include <string>
 using arma::mat;
-
-#include <iostream>
-
-using std::cout, std::endl, std::string;
 
 using uint = unsigned int;
 
@@ -68,4 +65,4 @@ struct event_struct {
  */
 mat integrate(system_func f, double t0, mat x0, mat args, double h,
               uint n_steps = 10, event_func event = nullptr,
-              event_struct *result = nullptr, string method = "newton");
+              event_struct *result = nullptr, std::string method = "newton");
