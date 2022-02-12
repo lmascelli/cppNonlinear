@@ -7,7 +7,9 @@
 
 ## There is a trade-off between generalization of analysis and the need to get the problem solved in the abstraction level of this work. At this point there is:
 - A nonlinear part reseved to general functions used in analysis like:
-  - An ODE integrating function with <i>Newton</i> and <i>Runge-Kutta 3rd order</i> algorithms
+  - An ODE integrating function with <i>Newton</i> and <i>Runge-Kutta 3rd order</i> algorithms; this point is not so trivial because the system may not be ruled by a single equation (and in this case it is not!).<br>
+  This is achieved ("taking inspiration" from matlab ode solver) by passing an event function that check if the traiectory intersect some manifold and returnin the associated label; it's responsability of the calling function
+  to change the corrensponding function for the next step.
 
 ## Roadmap:
   - [X] Structure an analysis class with all data needed for a point in parameter space
