@@ -1,8 +1,8 @@
 #include "analysis.hpp"
 #include "utils.hpp"
 
-Analysis::Analysis(void (*init_func)(Analysis &self)) {
-  init_func(*this);
+Analysis::Analysis(init_func init) {
+  init(*this);
   // TODO also remove this if the program still works
   // current_state = manifold(t0, x0);
 }

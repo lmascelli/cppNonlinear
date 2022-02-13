@@ -4,6 +4,23 @@
 #include <string>
 using std::string;
 
+class Analysis;
+using init_func = void (*)(Analysis &);
+
+/**
+ * class Analysis
+ *
+ * This class is meant to be a way to manage an analysis for a particular
+ * system and one set of parameter at time. You must create yourself:
+ * - the system's ruling functions,
+ * - the system's region label and a function to indentify them,
+ * - a way to cycle the param space and store the results.
+ * The analysis class will do the following works then:
+ * - get rid of the transient,
+ * - find the period T of a periodic traiectory (shooting method),
+ * - find the stability of the traiectory,
+ * - save traiectory data in the filesystem.
+ */
 class Analysis {
 public:
   /**
@@ -15,7 +32,7 @@ public:
    *                   The function itself take as parameter
    *                   a reference to the instance to initialize
    */
-  Analysis(void (*init_func)(Analysis &self));
+  Analysis(init_func init);
 
   Analysis() = delete;
 
