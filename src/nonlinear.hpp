@@ -2,7 +2,14 @@
 
 #include <armadillo>
 #include <string>
+#include <vector>
 using arma::mat;
+
+/*
+ * ----------------------------------------------------------------------------
+ * TYPES DECLARATION
+ * ----------------------------------------------------------------------------
+ */
 
 using uint = unsigned int;
 
@@ -29,22 +36,69 @@ using system_func = mat (*)(double, mat, mat);
  */
 using event_func = uint (*)(double, mat);
 
+/*
+ * ----------------------------------------------------------------------------
+ * STRUCTURES AND CLASSED
+ * ----------------------------------------------------------------------------
+ */
+
 /**
- * event_struct
+ * EventStruct
  * This struct hold the result of an event found by the integrate function
  * and contains the EVENT label, the time T at which the event occurred and
  * the X value it was.
  */
-struct event_struct {
+struct EventStruct {
   uint event; // label rapresenting the manifold intersected
   double t;   // time of event occurred
   mat x;      // value of the traiectory at event releaved
 };
 
 /**
+ * SystemDescriptor
+ * This class contains the ruling equations of the system and the manifold
+ * rules, if any, to switch between them.
+ */
+class SystemDescriptor {
+public:
+  /**
+   * FunctionType
+   * The funtions ruling the system may be equation or map.
+   * Possible values: {EQUATION, MAP}
+   */
+  enum FunctionType { EQUATION, MAP };
+
+  /**
+   * @brief Insert a function in the system
+   * @param f the function to insert
+   * @param t the type of the function, default EQUATION
+   */
+  void AddFunction(system_func f, FunctionType t = FunctionType::EQUATION);
+  /**
+   * @brief Returns the ith function of the system
+   * @param i the index of the function
+   */
+  system_func GetFunction(uint i);
+
+  event_func manifold; // the function that given a point in the state-time
+                       // parameter returns the index of the corresponding
+                       // equation int vector F.
+
+private:
+  std::vector<system_func> F; // the equation ruling the system
+  std::vector<FunctionType> Ft;
+};
+
+/*
+ * ----------------------------------------------------------------------------
+ * FUNCTIONS
+ * ----------------------------------------------------------------------------
+ */
+
+/**
  * mat integrate(system_func f, double t0, mat x0, mat args, double h,
  * uint n_steps = 10, event_func event = nullptr,
- * event_struct *result =nullptr, string method = "newton")
+ * EventStruct *result =nullptr, string method = "newton")
  *
  * This function compute a step in interating the system looking if there
  * is an intersaction with a manifold if EVENT_FUNC is passed, returning
@@ -65,4 +119,22 @@ struct event_struct {
  */
 mat integrate(system_func f, double t0, mat x0, mat args, double h,
               uint n_steps = 10, event_func event = nullptr,
-              event_struct *result = nullptr, std::string method = "newton");
+              EventStruct *result = nullptr, std::string method = "newton");
+
+/**
+ * @bried Computes the traiectory of the system from time t0 to time
+ *        t0 + n_step * step
+ * @param system: the SystemDescriptor of the system
+ * @param t0: the initial time
+ * @param x0: the COLUMN array initial conditions
+ * @param n_points: number of integration steps
+ * @param step: step size
+ * @param method: the algorithm to be used; possible values:
+ *                - "euler": Euler's method
+ *                - "rk3": Runge-Kutta 3rd order
+ * @returns a matrix with n_steps column made such:
+ *          [t
+ *           x]
+ */
+mat traiectory(SystemDescriptor system, double t0, mat x0, uint n_points,
+               double step, std::string method = "newton");

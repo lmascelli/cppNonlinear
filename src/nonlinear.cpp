@@ -1,7 +1,7 @@
 #include "nonlinear.hpp"
 
 mat integrate(system_func f, double t0, mat x0, mat args, double h,
-              uint n_steps, event_func event, event_struct *result,
+              uint n_steps, event_func event, EventStruct *result,
               std::string method) {
   double current_state;
   if (event) {

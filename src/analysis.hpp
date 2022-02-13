@@ -33,7 +33,6 @@ public:
    *                   a reference to the instance to initialize
    */
   Analysis(init_func init);
-
   Analysis() = delete;
 
   /**
