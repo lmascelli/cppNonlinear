@@ -45,6 +45,8 @@ int main(int argc, char const *argv[])
   mat *ret = nullptr;
   a.transient({0.1, 1}, true, &ret);
   Log::Print() << ret->n_rows << " X " << ret->n_cols << endl;
-  ret->save("data.csv", arma::file_type::csv_ascii);
+  ret->save("temp.csv", arma::file_type::csv_ascii);
+
+  Plotting::PlotMat(*ret);
   return 0;
 }

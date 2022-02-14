@@ -13,8 +13,9 @@
 
 ## Roadmap:
   - [X] Structure an analysis class with all data needed for a point in parameter space
+  - [ ] Store and plot a traiectory
   - [X] Compute the transient
-  - [ ] Compute the period (T) of a periodic traiectory
+  - [ ] Compute the period (T) of a periodic traiectory using the shooting method
   - [ ] Compute the monodomy matrix
   - [ ] Floquet multiplyers
   - [ ] Fill the parameter space
