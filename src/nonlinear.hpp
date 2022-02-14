@@ -1,5 +1,6 @@
 #pragma once
 
+#include "global.hpp"
 #include <armadillo>
 #include <string>
 #include <vector>
@@ -10,8 +11,11 @@ using arma::mat;
  * TYPES DECLARATION
  * ----------------------------------------------------------------------------
  */
-
-using uint = uint64_t;
+#ifdef LINUX
+using uint = unsigned int;
+#elif WINDOWS
+using uint = u_int64_t;
+#endif
 
 /**
  * @brief Type representing a function that describe a system

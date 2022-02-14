@@ -14,6 +14,7 @@ class Plotting
 {
 public:
   static void PlotMat(arma::mat &m);
+  static void PlotCSV(std::string &filename);
 };
 
 class Storage
