@@ -1,3 +1,4 @@
 /.cache
 /build
 /lbuild
+compile_commands.json

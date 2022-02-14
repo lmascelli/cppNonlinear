@@ -25,7 +25,7 @@ mat Analysis::transient(mat param, bool saveData, mat **data) {
   }
   Log::Print() << "Integrating..." << endl;
   while (t <= t_transient) {
-    event_struct new_result;
+    EventStruct new_result;
     new_result.event = manifold(t, x);
     x = integrate(system, t, x, param, step, 10, manifold, &new_result, "rk3");
     if (new_result.event == 1) {
@@ -57,7 +57,7 @@ mat Analysis::shooting(mat param, bool saveData, mat **data) {
   for (uint i = 0; i < niter && running; i++) {
     double step = (tend - t_transient) / ndata;
     while (t < tend) {
-      event_struct result;
+      EventStruct result;
       x = integrate(system, t, x, param, step, 10, manifold, &result, "rk3");
     }
   }
