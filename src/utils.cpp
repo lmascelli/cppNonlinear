@@ -8,7 +8,7 @@ void Plotting::PlotMat(arma::mat &m)
 {
     if (m.save("temp.csv", arma::csv_ascii))
     {
-#ifdef UNIX
+#ifdef LINUX
         system("python3 visualize.py");
 #elif WINDOWS
         system("python visualize.py");
@@ -20,7 +20,7 @@ void Plotting::PlotMat(arma::mat &m)
 
 void Plotting::PlotCSV(std::string &filename)
 {
-#ifdef UNIX
+#ifdef LINUX
     system(("python3 visualize.py " + filename).c_str());
 #elif WINDOWS
     system(("python visualize.py " + filename).c_str());
