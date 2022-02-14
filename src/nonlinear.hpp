@@ -11,13 +11,10 @@ using arma::mat;
  * ----------------------------------------------------------------------------
  */
 
-using uint = unsigned int;
+using uint = uint64_t;
 
 /**
- * system_func
- * mat system_func(double t, mat x, mat params)
- *
- * Type representing a function that describe a system
+ * @brief Type representing a function that describe a system
  * @param t explicit time
  * @param x COLUMN array with point where to evaluate the system
  * @param params COLUMN array containg the paramaters value of the system
@@ -25,11 +22,8 @@ using uint = unsigned int;
  */
 using system_func = mat (*)(double, mat, mat);
 /**
- * event_func
- * uint system_func(double t, mat X)
- *
- * This is a function evaluating the region of space where different
- * functions rule the system.
+ * @brief This is a function evaluating the region of space where different
+ *        functions rule the system.
  * @param t time
  * @param x coords
  * @return a label rapresenting the region where the system is.
@@ -43,30 +37,33 @@ using event_func = uint (*)(double, mat);
  */
 
 /**
- * EventStruct
  * This struct hold the result of an event found by the integrate function
  * and contains the EVENT label, the time T at which the event occurred and
  * the X value it was.
  */
-struct EventStruct {
+struct EventStruct
+{
   uint event; // label rapresenting the manifold intersected
   double t;   // time of event occurred
   mat x;      // value of the traiectory at event releaved
 };
 
 /**
- * SystemDescriptor
  * This class contains the ruling equations of the system and the manifold
  * rules, if any, to switch between them.
  */
-class SystemDescriptor {
+class SystemDescriptor
+{
 public:
   /**
-   * FunctionType
    * The funtions ruling the system may be equation or map.
    * Possible values: {EQUATION, MAP}
    */
-  enum FunctionType { EQUATION, MAP };
+  enum FunctionType
+  {
+    EQUATION,
+    MAP
+  };
 
   /**
    * @brief Insert a function in the system
@@ -77,8 +74,17 @@ public:
   /**
    * @brief Returns the ith function of the system
    * @param i the index of the function
+   * @return The system function associated to that index
    */
-  system_func GetFunction(uint i);
+  system_func GetFunction(const uint i) const;
+
+  /**
+   * @brief Ge
+   *
+   * @param i the index of the function
+   * @return FunctionType The FunctionType of the ith function;
+   */
+  FunctionType GetType(const uint i) const;
 
   event_func manifold; // the function that given a point in the state-time
                        // parameter returns the index of the corresponding
@@ -96,10 +102,6 @@ private:
  */
 
 /**
- * mat integrate(system_func f, double t0, mat x0, mat args, double h,
- * uint n_steps = 10, event_func event = nullptr,
- * EventStruct *result =nullptr, string method = "newton")
- *
  * This function compute a step in interating the system looking if there
  * is an intersaction with a manifold if EVENT_FUNC is passed, returning
  * the next value and setting event related info in RESULT.
@@ -136,5 +138,5 @@ mat integrate(system_func f, double t0, mat x0, mat args, double h,
  *          [t
  *           x]
  */
-mat traiectory(SystemDescriptor system, double t0, mat x0, uint n_points,
+mat traiectory(SystemDescriptor system, double t0, mat x0, mat params, uint n_points,
                double step, std::string method = "newton");

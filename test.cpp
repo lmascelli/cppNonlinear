@@ -2,7 +2,8 @@
 #include "src/nonlinear.hpp"
 #include "src/utils.hpp"
 
-mat test_system(double t, mat x, mat param) {
+mat test_system(double t, mat x, mat param)
+{
   const double a = 0.04;
   const double b = 5;
   const double c = 150;
@@ -11,7 +12,8 @@ mat test_system(double t, mat x, mat param) {
   return ret.t();
 }
 
-mat test_mapping(double t, mat x, mat param) {
+mat test_mapping(double t, mat x, mat param)
+{
   const double d = -55;
   const double f = 4;
   mat ret{d, x(1) + f};
@@ -19,14 +21,17 @@ mat test_mapping(double t, mat x, mat param) {
   return ret.t();
 }
 
-uint eventfun(double t, mat x) {
+uint eventfun(double t, mat x)
+{
   const double xTH = 30;
   uint ret = x(0) >= xTH ? 1 : 0;
   return ret;
 }
 
-int main(int argc, char const *argv[]) {
-  Analysis a([](Analysis &self) {
+int main(int argc, char const *argv[])
+{
+  Analysis a([](Analysis &self)
+             {
     self.system = test_system;
     self.map = test_mapping;
     self.manifold = eventfun;
@@ -36,8 +41,7 @@ int main(int argc, char const *argv[]) {
     self.t0 = 0;
     self.t_transient = 10;
     self.tend = 20;
-    self.ndata = 1000;
-  });
+    self.ndata = 1000; });
   mat *ret = nullptr;
   a.transient({0.1, 1}, true, &ret);
   Log::Print() << ret->n_rows << " X " << ret->n_cols << endl;
