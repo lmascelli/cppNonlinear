@@ -1,6 +1,12 @@
 #include "nonlinear.hpp"
 #include "utils.hpp"
 
+/**
+ * ----------------------------------------------------------------------------
+ * SystemDescriptor METHODS
+ * ----------------------------------------------------------------------------
+ */
+
 system_func SystemDescriptor::GetFunction(const uint i) const
 {
   return F[i];
@@ -11,11 +17,18 @@ SystemDescriptor::FunctionType SystemDescriptor::GetType(const uint i) const
   return Ft[i];
 }
 
-void SystemDescriptor::AddFunction(system_func f, SystemDescriptor::FunctionType type)
+void SystemDescriptor::AddFunction(system_func f, SystemDescriptor::FunctionType type, system_func jac)
 {
   F.push_back(f);
   Ft.push_back(type);
+  FJ.push_back(jac);
 }
+
+/**
+ * ----------------------------------------------------------------------------
+ * FUNCTIONS IMPLEMENTATION
+ * ----------------------------------------------------------------------------
+ */
 
 mat integrate(system_func f, double t0, mat x0, mat args, double h,
               uint n_steps, event_func event, EventStruct *result,

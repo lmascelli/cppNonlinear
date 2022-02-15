@@ -13,8 +13,8 @@ using arma::mat;
  */
 #ifdef LINUX
 using uint = unsigned int;
-#elif WINDOWS
-using uint = u_int64_t;
+#elif defined(WINDOWS)
+using uint = uint64_t;
 #endif
 
 /**
@@ -73,14 +73,25 @@ public:
    * @brief Insert a function in the system
    * @param f the function to insert
    * @param t the type of the function, default EQUATION
+   * @param jac the jacobian of f, if none it will be computed numerically
    */
-  void AddFunction(system_func f, FunctionType t = FunctionType::EQUATION);
+  void AddFunction(system_func f, FunctionType t = FunctionType::EQUATION,
+                   system_func jac = nullptr);
   /**
    * @brief Returns the ith function of the system
    * @param i the index of the function
    * @return The system function associated to that index
    */
   system_func GetFunction(const uint i) const;
+
+  /**
+   * @brief Get the Jacobian function if any, otherwise it return a numerically
+   *        computation of it.
+   *
+   * @param i the index of the function
+   * @return Analitically if provided jacobian, otherwise numerical.
+   */
+  system_func GetJacobian(const uint i) const;
 
   /**
    * @brief Ge
@@ -97,6 +108,9 @@ public:
 private:
   std::vector<system_func> F; // the equation ruling the system
   std::vector<FunctionType> Ft;
+  std::vector<system_func> FJ; // the Jacobian of the F functions;
+                               // if not provided then it will be calculated
+                               // numerically
 };
 
 /*
@@ -125,11 +139,12 @@ private:
  */
 mat integrate(system_func f, double t0, mat x0, mat args, double h,
               uint n_steps = 10, event_func event = nullptr,
-              EventStruct *result = nullptr, std::string method = "newton");
+              EventStruct *result = nullptr, std::string method = "euler");
 
 /**
- * @bried Computes the traiectory of the system from time t0 to time
+ * @brief Computes the traiectory of the system from time t0 to time
  *        t0 + n_step * step
+ *
  * @param system: the SystemDescriptor of the system
  * @param t0: the initial time
  * @param x0: the COLUMN array initial conditions
@@ -142,5 +157,44 @@ mat integrate(system_func f, double t0, mat x0, mat args, double h,
  *          [t
  *           x]
  */
-mat traiectory(SystemDescriptor system, double t0, mat x0, mat params, uint n_points,
-               double step, std::string method = "newton");
+
+/**
+ * @brief Compute and integration step of a system
+ * @param system the SystemDescriptor of the system
+ * @param t0 initial time
+ * @param x0 initial conditions
+ * @param args system parameters
+ * @param step integration step size
+ * @param event_result an EventStruct pointer where to store event result
+ * @param sub_steps number of substeps for integration
+ * @param method integration algorithm; avaliable:
+ *               - "euler": Euler's method
+ *               - "rk3": Runge-Kutta 3rd order
+ * @return mat  the system value at (t0 + step)
+ */
+mat integrate(SystemDescriptor system, double t0, mat x0, mat args, double step,
+              EventStruct *event_result, uint sub_steps = 10,
+              std::string method = "euler");
+
+mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
+               uint n_points, double step, std::string method = "euler");
+
+/**
+ * @brief The monodromy matrix calculate over a period T
+ *        Tecnically the monodromy matrix is calculate over a period but this
+ *        function calculate this kind of matrix over any T, be it the exact
+ *        period or not so the name may be not exact.
+ *
+ * @param system the system descriptor
+ * @param t0 initial time
+ * @param X0 initial conditions
+ * @param params system params
+ * @param T period
+ * @param step integration step size
+ * @param method integration algorith; available:
+ *               - "euler": first order implicit Euler method,
+ *               - "rk3": Runge-Kutta 3rd order method
+ * @return mat the monodromy matrix
+ */
+mat monodromy(SystemDescriptor system, double t0, mat X0, mat params, double T,
+              double step, std::string method = "euler");
