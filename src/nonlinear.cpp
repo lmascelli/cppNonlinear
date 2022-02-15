@@ -30,6 +30,64 @@ void SystemDescriptor::AddFunction(system_func f, SystemDescriptor::FunctionType
  * ----------------------------------------------------------------------------
  */
 
+mat integrate(SystemDescriptor &system, double t0, mat x0, mat args,
+              double step, EventStruct *event_result, uint sub_steps,
+              std::string method)
+{
+  uint current_state;
+  if (system.manifold)
+  {
+    current_state = system.manifold(t0, x0);
+  }
+
+  step /= (double)sub_steps;
+
+  if (method == "euler")
+  {
+    for (uint i = 0; i < sub_steps; i++)
+    {
+      x0 += step * system.GetFunction(current_state)(t0, x0, args);
+      t0 += step;
+      if (system.manifold)
+      {
+        uint new_state = system.manifold(t0, x0);
+        if (new_state != current_state)
+        {
+          event_result->event = new_state;
+          event_result->t = t0;
+          event_result->x = x0;
+          return x0;
+        }
+      }
+    }
+  }
+  else if (method == "rk3")
+  {
+    for (uint i = 0; i < sub_steps; i++)
+    {
+      auto f = system.GetFunction(current_state);
+      mat k0 = f(t0, x0, args) * step;
+      mat k1 = f(t0 + 0.5 * step, x0 + 0.5 * step * k0, args) * step;
+      mat k2 = f(t0 + 0.5 * step, x0 + 0.5 * step * k1, args) * step;
+      mat k3 = f(t0 + step, x0 + step * k2, args) * step;
+      x0 += 1. / 6. * (k0 + 2 * k1 + 2 * k2 + k3);
+      t0 += step;
+      if (system.manifold)
+      {
+        uint new_state = system.manifold(t0, x0);
+        if (new_state != current_state)
+        {
+          event_result->event = new_state;
+          event_result->t = t0;
+          event_result->x = x0;
+          return x0;
+        }
+      }
+    }
+  }
+  return x0;
+}
+
 mat integrate(system_func f, double t0, mat x0, mat args, double h,
               uint n_steps, event_func event, EventStruct *result,
               std::string method)
@@ -61,7 +119,7 @@ mat integrate(system_func f, double t0, mat x0, mat args, double h,
       }
       t0 += h;
     }
-  if (method == "rk3")
+  else if (method == "rk3")
     for (uint i = 0; i < n_steps; i++)
     {
       mat k0 = f(t0, x0, args) * h;
@@ -85,6 +143,9 @@ mat integrate(system_func f, double t0, mat x0, mat args, double h,
   return x0;
 }
 
+/**
+ * TODO check if the function switch the current label in case of manifold cross.
+ */
 mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
                uint n_points, double step, std::string method)
 {

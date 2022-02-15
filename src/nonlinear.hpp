@@ -142,6 +142,24 @@ mat integrate(system_func f, double t0, mat x0, mat args, double h,
               EventStruct *result = nullptr, std::string method = "euler");
 
 /**
+ * @brief Compute and integration step of a system
+ * @param system the SystemDescriptor of the system
+ * @param t0 initial time
+ * @param x0 initial conditions
+ * @param args system parameters
+ * @param step integration step size
+ * @param event_result an EventStruct pointer where to store event result
+ * @param sub_steps number of substeps for integration
+ * @param method integration algorithm; avaliable:
+ *               - "euler": Euler's method
+ *               - "rk3": Runge-Kutta 3rd order
+ * @return mat  the system value at (t0 + step)
+ */
+mat integrate(SystemDescriptor &system, double t0, mat x0, mat args, double step,
+              EventStruct *event_result = nullptr, uint sub_steps = 10,
+              std::string method = "euler");
+
+/**
  * @brief Computes the traiectory of the system from time t0 to time
  *        t0 + n_step * step
  *
@@ -157,24 +175,6 @@ mat integrate(system_func f, double t0, mat x0, mat args, double h,
  *          [t
  *           x]
  */
-
-/**
- * @brief Compute and integration step of a system
- * @param system the SystemDescriptor of the system
- * @param t0 initial time
- * @param x0 initial conditions
- * @param args system parameters
- * @param step integration step size
- * @param event_result an EventStruct pointer where to store event result
- * @param sub_steps number of substeps for integration
- * @param method integration algorithm; avaliable:
- *               - "euler": Euler's method
- *               - "rk3": Runge-Kutta 3rd order
- * @return mat  the system value at (t0 + step)
- */
-mat integrate(SystemDescriptor system, double t0, mat x0, mat args, double step,
-              EventStruct *event_result, uint sub_steps = 10,
-              std::string method = "euler");
 
 mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
                uint n_points, double step, std::string method = "euler");
