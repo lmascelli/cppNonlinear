@@ -1,4 +1,5 @@
 #include "nonlinear.hpp"
+#include "utils.hpp"
 
 system_func SystemDescriptor::GetFunction(const uint i) const
 {
@@ -28,7 +29,7 @@ mat integrate(system_func f, double t0, mat x0, mat args, double h,
 
   h /= (double)n_steps;
 
-  if (method == "newton")
+  if (method == "euler")
     for (uint i = 0; i < n_steps; i++)
     {
       x0 += h * f(t0, x0, args);
@@ -75,9 +76,9 @@ mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
                uint n_points, double step, std::string method)
 {
   const uint return_size = 1 + x0.n_rows;
-  mat ret = arma::zeros(return_size, n_points + 1);
+  mat ret = arma::zeros(return_size, n_points);
 
-  auto setCol = [ret, return_size](uint pos, double t, mat x) mutable
+  auto setCol = [&ret, return_size](uint pos, double t, mat x) mutable
   {
     ret(0, pos) = t;
     ret(arma::span(1, return_size - 1), pos) = x;
@@ -85,8 +86,8 @@ mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
 
   for (uint i = 0; i < n_points; i++)
   {
-    EventStruct result;
     uint current_label = system.manifold(t0, x0);
+    EventStruct result = {current_label, t0, x0};
     switch (system.GetType(current_label))
     {
     case SystemDescriptor::EQUATION:
@@ -109,6 +110,7 @@ mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
       x0 = system.GetFunction(current_label)(t0, x0, params);
       t0 += step;
       setCol(i, t0, x0);
+      Log::Print() << "MAP! Cycle: " << i << ", t: " << t0 << ", x: " << x0 << endl;
     }
     break;
     }

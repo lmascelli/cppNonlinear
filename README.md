@@ -12,10 +12,14 @@
   to change the corrensponding function for the next step.
 
 ## Roadmap:
-  - [X] Structure an analysis class with all data needed for a point in parameter space
-  - [ ] Store and plot a traiectory
-  - [X] Compute the transient
-  - [ ] Compute the period (T) of a periodic traiectory using the shooting method
-  - [ ] Compute the monodomy matrix
-  - [ ] Floquet multiplyers
-  - [ ] Fill the parameter space
+
+  - Computation:
+    - [X] Structure an analysis class with all data needed for a point in parameter space
+    - [X] Compute the transient
+    - [ ] Compute the period (T) of a periodic traiectory using the shooting method
+    - [ ] Compute the monodomy matrix
+    - [ ] Floquet multiplyers
+    - [ ] Fill the parameter space
+
+  - Plotting:
+    - [X] Store and plot a traiectory
