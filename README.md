@@ -27,6 +27,10 @@
 
   - Plotting:
     - [ ] Store and plot a traiectory
-      - [ ] 2D state variable plane
-      - [ ] State variable vs time
+      - [X] 2D state variable plane
+      - [X] State variable vs time
+      - [ ] Plots legend and axis labels
     - [ ] Store and plot a parameter space analysis
+
+  - Compilation toolchain stuff:
+   - [ ] Make python script installed with binaries by CMake

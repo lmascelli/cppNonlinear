@@ -29,8 +29,13 @@ def plot(filename=None):
     if not filename:
         filename = 'temp.csv'
     with open(filename) as f:
+        t = []
         x = []
         y = []
+        line = f.readline()
+        numbers = line.split(',')
+        for i, n in enumerate(numbers):
+            t.append(float(n))
         line = f.readline()
         numbers = line.split(',')
         for i, n in enumerate(numbers):
@@ -40,6 +45,11 @@ def plot(filename=None):
         for i, n in enumerate(numbers):
             y.append(float(n))
 
+        plt.subplot(3, 1, 1)
+        plt.plot(t, x)
+        plt.subplot(3, 1, 2)
+        plt.plot(t, y)
+        plt.subplot(3, 1, 3)
         plt.plot(x, y)
         plt.show()
 
