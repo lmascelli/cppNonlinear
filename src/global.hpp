@@ -14,9 +14,9 @@
  */
 
 #ifndef LINUX
-// #define LINUX
+#define LINUX
 #endif
 
 #ifndef WINDOWS
-#define WINDOWS
+// #define WINDOWS
 #endif

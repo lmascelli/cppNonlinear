@@ -171,12 +171,13 @@ mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
       if (result.event != current_label)
       {
         setCol(i, result.t, result.x);
-        x0 = system.GetFunction(result.event)(result.t, result.x, params);
-        t0 += step;
-        break;
+        current_label = result.event;
+      }
+      else
+      {
+        setCol(i, t0, x0);
       }
       t0 += step;
-      setCol(i, t0, x0);
     }
     break;
     case SystemDescriptor::MAP:

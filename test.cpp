@@ -81,8 +81,7 @@ int main(int argc, char const *argv[])
   // Plotting::PlotMat(*ret);
 
   mat x0 = {0.5, 0.5};
-  mat m = traiectory(system, 0, x0.t(), {0.1, 1}, 1000, 0.01);
-  Log::Print() << m << endl;
+  mat m = traiectory(system, 0, x0.t(), {0.1, 1}, 10000, 0.001);
   Plotting::PlotMat(m);
   return 0;
 }

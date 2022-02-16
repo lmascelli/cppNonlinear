@@ -14,12 +14,19 @@
 ## Roadmap:
 
   - Computation:
-    - [X] Structure an analysis class with all data needed for a point in parameter space
+    - [ ] Structure an analysis class with all data needed for a point in parameter space
+      - [X] Software implementation
+      - [ ] Diagram representation
     - [X] Compute the transient
+      - [X] Check if there is a correct switch between system function at manifold crossing
     - [ ] Compute the period (T) of a periodic traiectory using the shooting method
-    - [ ] Compute the monodomy matrix
-    - [ ] Floquet multiplyers
+      - [ ] Compute the monodomy matrix
+      - [ ] Floquet multiplyers
+      - [ ] Newton method for multidimensional functions
     - [ ] Fill the parameter space
 
   - Plotting:
-    - [X] Store and plot a traiectory
+    - [ ] Store and plot a traiectory
+      - [ ] 2D state variable plane
+      - [ ] State variable vs time
+    - [ ] Store and plot a parameter space analysis
