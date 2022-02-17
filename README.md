@@ -21,10 +21,11 @@
       - [X] Check if there is a correct switch between system function at manifold crossing
     - [ ] Compute the period (T) of a periodic traiectory using the shooting method
       - [ ] Compute the monodomy matrix
+        - [X] Compute Jacobian
+        - [ ] Compute Saltation matrix
       - [ ] Floquet multiplyers
       - [ ] Newton method for multidimensional functions
     - [ ] Fill the parameter space
-
   - Plotting:
     - [ ] Store and plot a traiectory
       - [X] 2D state variable plane
@@ -33,4 +34,15 @@
     - [ ] Store and plot a parameter space analysis
 
   - Compilation toolchain stuff:
-   - [ ] Make python script installed with binaries by CMake
+    - [ ] Make python script installed with binaries by CMake
+
+  - Assegnation test specifics:
+    - [ ] Define the test problem
+      - [X] System function
+      - [ ] System jacobian
+      - [X] Map
+      - [ ] Eventually saltation matrix
+      - [ ] Single params:
+        - [ ]
+        - [ ]
+      - [ ] Param space

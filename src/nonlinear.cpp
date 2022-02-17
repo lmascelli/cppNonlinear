@@ -17,11 +17,20 @@ SystemDescriptor::FunctionType SystemDescriptor::GetType(const uint i) const
   return Ft[i];
 }
 
-void SystemDescriptor::AddFunction(system_func f, SystemDescriptor::FunctionType type, system_func jac)
+void SystemDescriptor::AddFunction(system_func f,
+                                   SystemDescriptor::FunctionType type,
+                                   system_func jac)
 {
   F.push_back(f);
   Ft.push_back(type);
-  FJ.push_back(jac);
+  if (jac)
+    FJ.push_back(jac);
+  else
+  {
+    Log::Print() << "No analytical jacobian for func " << F.size() - 1
+                 << "It will be calculated analytically if required" << endl;
+    FJ.push_back(nullptr);
+  }
 }
 
 /**
@@ -191,4 +200,28 @@ mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
     }
   }
   return ret;
+}
+
+mat jacobian(system_func f, double t, mat x, mat args, double h)
+{
+  uint dim = x.n_rows;
+  mat jac(dim, dim);
+  for (uint i = 0; i < dim; i++)
+  {
+    mat H = arma::zeros(dim, 1);
+    H.row(i) += h;
+    jac.col(i) = (f(t, x + H, args) - f(t, x - H, args)) / 2 * h;
+  }
+  return jac;
+}
+
+mat monodromy(SystemDescriptor system, double t0, mat x0, mat params, double T,
+              double step, std::string method)
+{
+  mat m = arma::eye(x0.n_rows, x0.n_rows);
+  uint n_step = floor((T - t0) / step);
+  for (uint i = 0; i < n_step; i++)
+  {
+  }
+  return m;
 }

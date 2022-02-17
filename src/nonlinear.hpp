@@ -180,6 +180,18 @@ mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
                uint n_points, double step, std::string method = "euler");
 
 /**
+ * @brief The jacboian of the f function
+ *
+ * @param f function whose jacobian must be computed
+ * @param t time value
+ * @param x coordinate value
+ * @param args parameters value
+ * @param h derivative step
+ * @return mat jacobian matrix
+ */
+mat jacobian(system_func f, double t, mat x, mat args, double h = 1e-6);
+
+/**
  * @brief The monodromy matrix calculate over a period T
  *        Tecnically the monodromy matrix is calculate over a period but this
  *        function calculate this kind of matrix over any T, be it the exact
