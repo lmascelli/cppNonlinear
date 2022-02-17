@@ -155,7 +155,7 @@ mat integrate(system_func f, double t0, mat x0, mat args, double h,
 /**
  * TODO check if the function switch the current label in case of manifold cross.
  */
-mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
+mat traiectory(SystemDescriptor &system, double t0, mat x0, mat params,
                uint n_points, double step, std::string method)
 {
   const uint return_size = 1 + x0.n_rows;
@@ -215,13 +215,38 @@ mat jacobian(system_func f, double t, mat x, mat args, double h)
   return jac;
 }
 
-mat monodromy(SystemDescriptor system, double t0, mat x0, mat params, double T,
-              double step, std::string method)
+mat monodromy(SystemDescriptor &system, double t0, mat x0, mat params, double T,
+              double step, bool save_traiectory, mat *traiectory,
+              std::string method)
 {
-  mat m = arma::eye(x0.n_rows, x0.n_rows);
-  uint n_step = floor((T - t0) / step);
+  const uint dim = x0.n_rows;
+  // mat m_matrix = arma::eye(dim, dim);
+  mat m_matrix = arma::zeros(dim, dim);
+  const uint n_step = floor((T - t0) / step);
+  if (save_traiectory)
+  {
+    *traiectory = mat(dim + 1, n_step);
+  }
   for (uint i = 0; i < n_step; i++)
   {
+    EventStruct result;
+    x0 = integrate(system, t0, x0, params, step, &result);
+    if (save_traiectory)
+    {
+      traiectory->operator()(0, i) = t0;
+      traiectory->operator()(arma::span(1, dim), i) = x0;
+    }
+    if (system.GetType(result.event) == SystemDescriptor::EQUATION)
+    {
+      auto jac = system.GetJacobian(result.event);
+      m_matrix += (jac == nullptr ? jacobian(system.GetFunction(result.event), t0,
+                                             x0, params)
+                                  : jac(t0, x0, params));
+    }
+    else if (system.GetType(result.event) == SystemDescriptor::MAP)
+    {
+      // saltuation matrix
+    }
   }
-  return m;
+  return m_matrix;
 }

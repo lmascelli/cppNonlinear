@@ -176,7 +176,7 @@ mat integrate(SystemDescriptor &system, double t0, mat x0, mat args, double step
  *           x]
  */
 
-mat traiectory(SystemDescriptor system, double t0, mat x0, mat params,
+mat traiectory(SystemDescriptor &system, double t0, mat x0, mat params,
                uint n_points, double step, std::string method = "euler");
 
 /**
@@ -208,5 +208,5 @@ mat jacobian(system_func f, double t, mat x, mat args, double h = 1e-6);
  *               - "rk3": Runge-Kutta 3rd order method
  * @return mat the monodromy matrix
  */
-mat monodromy(SystemDescriptor system, double t0, mat X0, mat params, double T,
-              double step, std::string method = "euler");
+mat monodromy(SystemDescriptor &system, double t0, mat X0, mat params, double T,
+              double step, bool save_traiectory = false, mat *traiectory = nullptr, std::string method = "euler");
