@@ -50,9 +50,10 @@
         - [ ]
       - [ ] Param space
     - [ ] Create a script for proplem execution and plot (Python)
-      - [ ] run and plot
+      - [X] build, run and plot
         - [ ] trainsient
-          - [ ] manifold crossing vs time
-          - [ ] x vs time
-          - [ ] y vs time
+          - [X] manifold crossing vs time
+          - [X] x vs time
+          - [X] y vs time
+          - [ ] axis label and titles
         - [ ] shooting

@@ -78,9 +78,9 @@ if __name__ == '__main__':
         if command == '--plot':
             data = load_data()
             plot_transient(data)
-        if command == '--build':
+        elif command == '--build':
             os.system('cd build && cmake --build . && cd ..')
-        if command == '--compute':
+        elif command == '--run':
             os.system('cd build && test.exe')
         else:
             print(f'option {command} not valid')
