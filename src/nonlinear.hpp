@@ -192,8 +192,8 @@ mat traiectory(SystemDescriptor &system, double t0, mat x0, mat params,
 mat jacobian(system_func f, double t, mat x, mat args, double h = 1e-6);
 
 /**
- * @brief The monodromy matrix calculate over a period T
- *        Tecnically the monodromy matrix is calculate over a period but this
+ * @brief The transition matrix calculate over a period T
+ *        Teoretically the monodromy matrix is calculate over a period but this
  *        function calculate this kind of matrix over any T, be it the exact
  *        period or not so the name may be not exact.
  *
@@ -206,7 +206,7 @@ mat jacobian(system_func f, double t, mat x, mat args, double h = 1e-6);
  * @param method integration algorith; available:
  *               - "euler": first order implicit Euler method,
  *               - "rk3": Runge-Kutta 3rd order method
- * @return mat the monodromy matrix
+ * @return mat the transition matrix
  */
-mat monodromy(SystemDescriptor &system, double t0, mat X0, mat params, double T,
-              double step, bool save_traiectory = false, mat *traiectory = nullptr, std::string method = "euler");
+mat transition_matrix(SystemDescriptor &system, double t0, mat X0, mat params, double T,
+                      double step, bool save_traiectory = false, mat *traiectory = nullptr, std::string method = "euler");

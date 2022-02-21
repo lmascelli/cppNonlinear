@@ -17,6 +17,11 @@ SystemDescriptor::FunctionType SystemDescriptor::GetType(const uint i) const
   return Ft[i];
 }
 
+system_func SystemDescriptor::GetJacobian(const uint i) const
+{
+  return FJ[i];
+}
+
 void SystemDescriptor::AddFunction(system_func f,
                                    SystemDescriptor::FunctionType type,
                                    system_func jac)
@@ -215,13 +220,12 @@ mat jacobian(system_func f, double t, mat x, mat args, double h)
   return jac;
 }
 
-mat monodromy(SystemDescriptor &system, double t0, mat x0, mat params, double T,
-              double step, bool save_traiectory, mat *traiectory,
-              std::string method)
+mat transition_matrix(SystemDescriptor &system, double t0, mat x0, mat params,
+                      double T, double step, bool save_traiectory,
+                      mat *traiectory, std::string method)
 {
   const uint dim = x0.n_rows;
-  // mat m_matrix = arma::eye(dim, dim);
-  mat m_matrix = arma::zeros(dim, dim);
+  mat m_matrix = arma::eye(dim, dim); // the initial transition matrix is I: x0 = I * x0
   const uint n_step = floor((T - t0) / step);
   if (save_traiectory)
   {
@@ -229,23 +233,33 @@ mat monodromy(SystemDescriptor &system, double t0, mat x0, mat params, double T,
   }
   for (uint i = 0; i < n_step; i++)
   {
-    EventStruct result;
+    uint current_event = system.manifold(t0, x0);
+    EventStruct result = {current_event, t0, x0};
     x0 = integrate(system, t0, x0, params, step, &result);
+    t0 += step;
     if (save_traiectory)
     {
       traiectory->operator()(0, i) = t0;
       traiectory->operator()(arma::span(1, dim), i) = x0;
     }
-    if (system.GetType(result.event) == SystemDescriptor::EQUATION)
+    if (result.event == current_event)
     {
       auto jac = system.GetJacobian(result.event);
-      m_matrix += (jac == nullptr ? jacobian(system.GetFunction(result.event), t0,
-                                             x0, params)
-                                  : jac(t0, x0, params));
+      m_matrix *= arma::expmat(
+          (jac == nullptr ? jacobian(system.GetFunction(result.event), t0,
+                                     x0, params)
+                          : jac(t0, x0, params)) *
+          step);
     }
-    else if (system.GetType(result.event) == SystemDescriptor::MAP)
+    else
     {
-      // saltuation matrix
+      // TODO: compute the saltation matrix
+      if (system.GetType(result.event) == SystemDescriptor::EQUATION)
+      {
+      }
+      else if (system.GetType(result.event) == SystemDescriptor::MAP)
+      {
+      }
     }
   }
   return m_matrix;

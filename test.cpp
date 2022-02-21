@@ -82,6 +82,6 @@ int main(int argc, char const *argv[])
 
   mat x0 = {0.5, 0.5};
   mat m = traiectory(system, 0, x0.t(), {0.1, 1}, 100000, 0.001);
-  Plotting::PlotMat(m);
+  m.save("data.csv", arma::csv_ascii);
   return 0;
 }

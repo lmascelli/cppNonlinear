@@ -27,6 +27,9 @@
       - [ ] Newton method for multidimensional functions
     - [ ] Fill the parameter space
   - Plotting:
+    - [ ] Transient:
+      - [ ] manifold cross vs time
+      - [ ] each state variable vs time
     - [ ] Store and plot a traiectory
       - [X] 2D state variable plane
       - [X] State variable vs time
@@ -37,7 +40,7 @@
     - [ ] Make python script installed with binaries by CMake
 
   - Assegnation test specifics:
-    - [ ] Define the test problem
+    - [ ] Implement the computation for the test problem (C++)
       - [X] System function
       - [ ] System jacobian
       - [X] Map
@@ -46,3 +49,10 @@
         - [ ]
         - [ ]
       - [ ] Param space
+    - [ ] Create a script for proplem execution and plot (Python)
+      - [ ] run and plot
+        - [ ] trainsient
+          - [ ] manifold crossing vs time
+          - [ ] x vs time
+          - [ ] y vs time
+        - [ ] shooting
