@@ -62,6 +62,9 @@ def load_data(filepath="build/data.csv") -> Data:
 
 
 def plot_transient(data: Data) -> None:
+    """
+    TODO da aggiungere axis label e title
+    """
     plt.subplot(3, 1, 1)
     plt.plot(data.t, data.x)
     plt.plot(manifold(data)[0], manifold(data)[1], 'bo')

@@ -3,3 +3,4 @@
 /lbuild
 /.vscode
 compile_commands.json
+src/test_schema.txt

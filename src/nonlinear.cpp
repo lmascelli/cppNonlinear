@@ -171,17 +171,21 @@ mat traiectory(SystemDescriptor &system, double t0, mat x0, mat params,
     ret(0, pos) = t;
     ret(arma::span(1, return_size - 1), pos) = x;
   };
-
   for (uint i = 0; i < n_points; i++)
   {
-    uint current_label = system.manifold(t0, x0);
-    EventStruct result = {current_label, t0, x0};
+    uint current_label = 0;
+    if (system.manifold)
+    {
+      current_label = system.manifold(t0, x0);
+    }
+    EventStruct result = EventStruct{current_label, t0, x0};
     switch (system.GetType(current_label))
     {
     case SystemDescriptor::EQUATION:
     {
       x0 = integrate(system.GetFunction(current_label), t0, x0, params, step,
                      10, system.manifold, &result, "euler");
+
       if (result.event != current_label)
       {
         setCol(i, result.t, result.x);
@@ -191,6 +195,7 @@ mat traiectory(SystemDescriptor &system, double t0, mat x0, mat params,
       {
         setCol(i, t0, x0);
       }
+
       t0 += step;
     }
     break;
@@ -233,8 +238,12 @@ mat transition_matrix(SystemDescriptor &system, double t0, mat x0, mat params,
   }
   for (uint i = 0; i < n_step; i++)
   {
-    uint current_event = system.manifold(t0, x0);
-    EventStruct result = {current_event, t0, x0};
+    uint current_event = 0;
+    EventStruct result{current_event, t0, x0};
+    if (system.manifold)
+    {
+      current_event = system.manifold(t0, x0);
+    }
     x0 = integrate(system, t0, x0, params, step, &result);
     t0 += step;
     if (save_traiectory)
