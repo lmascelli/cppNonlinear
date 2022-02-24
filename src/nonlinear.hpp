@@ -210,3 +210,7 @@ mat jacobian(system_func f, double t, mat x, mat args, double h = 1e-6);
  */
 mat transition_matrix(SystemDescriptor &system, double t0, mat X0, mat params, double T,
                       double step, bool save_traiectory = false, mat *traiectory = nullptr, std::string method = "euler");
+
+mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
+             double step, uint max_iters, bool save_traiectory = false,
+             mat *traiectory = nullptr, std::string method = "euler");
