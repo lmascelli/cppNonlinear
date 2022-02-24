@@ -274,7 +274,8 @@ mat transition_matrix(SystemDescriptor &system, double t0, mat x0, mat params,
   return m_matrix;
 }
 
-// TODO consider returning event times
+// TODO consider returning event times maybe in a row with value 1 each time an
+// event occurs.
 
 mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
              double step, uint max_iters, bool save_traiectory,
@@ -282,7 +283,7 @@ mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
 {
   const uint system_size = x0.n_rows;
   mat W = arma::eye(system_size, system_size);
-  const uint n_steps = ceil((T - t0) / step);
+  const uint n_steps = ceil(T / step);
 
   if (save_traiectory && !traiectory)
   {
@@ -290,6 +291,55 @@ mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
   }
 
   uint current_label = system.manifold(t0, x0);
+
+  bool running = true;
+
+  for (unsigned int k = 0; k < max_iters; k++)
+  {
+    if (running)
+    {
+      uint i = 0;
+      mat x = x0;
+      double t = t0;
+      double tend = t0 + T;
+      EventStruct result = {current_label, t, x};
+      while (t < tend)
+      {
+        x = integrate(system, t, x, params, step, &result);
+        if (save_traiectory)
+        {
+          if (i < n_steps)
+          {
+            (*traiectory)(0, i) = t;
+            (*traiectory)(arma::span(1, system_size), i) = x;
+          }
+          else
+          {
+            traiectory->resize(traiectory->n_rows, traiectory->n_cols * 2);
+            (*traiectory)(0, i) = t;
+            (*traiectory)(arma::span(1, system_size), i) = x;
+          }
+        }
+        if (result.event != current_label)
+        {
+          // saltation matrix;
+          // maybe save event encountered in a row
+        }
+        else
+        {
+          // classic monodromy
+        }
+        i++;
+      }
+      mat residue = x - x0;
+      // find armadillo A / B equivalent
+      mat dx = -(W - arma::eye(system_size, system_size)) / residue;
+    }
+    else
+    {
+      break;
+    }
+  }
 
   return W;
 }
