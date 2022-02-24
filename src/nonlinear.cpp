@@ -277,8 +277,8 @@ mat transition_matrix(SystemDescriptor &system, double t0, mat x0, mat params,
 // TODO consider returning event times
 
 mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
-             double step, uint max_iters, bool save_traiectory = false,
-             mat *traiectory = nullptr, std::string method = "euler")
+             double step, uint max_iters, bool save_traiectory,
+             mat *traiectory, std::string method)
 {
   const uint system_size = x0.n_rows;
   mat W = arma::eye(system_size, system_size);
