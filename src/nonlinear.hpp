@@ -102,11 +102,15 @@ public:
   FunctionType GetType(const uint i) const;
 
   event_func manifold; // the function that given a point in the state-time
-                       // parameter returns the index of the corresponding
-                       // equation int vector F.
+  // parameter returns the index of the corresponding
+  // equation int vector F.
+
+  system_func manifold_gradient;
+  system_func manifold_time_derivative;
 
 private:
-  std::vector<system_func> F; // the equation ruling the system
+  std::vector<system_func>
+      F; // the equation ruling the system
   std::vector<FunctionType> Ft;
   std::vector<system_func> FJ; // the Jacobian of the F functions;
                                // if not provided then it will be calculated
@@ -191,6 +195,9 @@ mat traiectory(SystemDescriptor &system, double t0, mat x0, mat params,
  */
 mat jacobian(system_func f, double t, mat x, mat args, double h = 1e-6);
 
+mat saltation_matrix(SystemDescriptor &system, double t, mat x_previous,
+                     mat x_next, mat params, uint label1, uint label2);
+
 /**
  * @brief The transition matrix calculate over a period T
  *        Teoretically the monodromy matrix is calculate over a period but this
@@ -211,6 +218,23 @@ mat jacobian(system_func f, double t, mat x, mat args, double h = 1e-6);
 mat transition_matrix(SystemDescriptor &system, double t0, mat X0, mat params, double T,
                       double step, bool save_traiectory = false, mat *traiectory = nullptr, std::string method = "euler");
 
+/**
+ * @brief Shooting algorithm for finding the period T of a limit cycle
+ *
+ * @param system system descriptor object
+ * @param t0 initial time
+ * @param x0 initial condition
+ * @param params system params
+ * @param T the starting guess for period
+ * @param step integration step
+ * @param max_iters max number of shooting trial
+ * @param save_traiectory if true must provide a pointer to a mat wher to store
+ * @param traiectory the pointer to a already instantiated matrix
+ * @param method integration algorithm, available:
+ *               - "euler": Euler's method,
+ *               - "rk3": Runge-Kutta 3rd order
+ * @return mat the monodromy matrix
+ */
 mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
              double step, uint max_iters, bool save_traiectory = false,
              mat *traiectory = nullptr, std::string method = "euler");

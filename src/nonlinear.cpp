@@ -225,6 +225,30 @@ mat jacobian(system_func f, double t, mat x, mat args, double h)
   return jac;
 }
 
+mat saltation_matrix(SystemDescriptor &system, double t, mat x_previous,
+                     mat x_next, mat params, uint label1, uint label2)
+{
+  switch (system.GetType(label2))
+  {
+  case SystemDescriptor::MAP:
+  {
+    mat ret = system.GetJacobian(label2)(t, x_previous, params);
+    mat num = (system.GetFunction(label2)(t, x_next, params) -
+               system.GetJacobian(label2)(t, x_previous, params) * system.GetFunction(label1)(t, x_previous, params));
+    mat den = (system.manifold_gradient(t, x_previous, params).t() -
+               system.manifold_time_derivative(t, x_previous, params)) *
+              system.manifold_time_derivative(t, x_previous, params);
+    return ret + num / den;
+  }
+  case SystemDescriptor::EQUATION:
+  {
+    return mat(1, 1);
+  }
+  default:
+    return mat(0, 0);
+  }
+}
+
 mat transition_matrix(SystemDescriptor &system, double t0, mat x0, mat params,
                       double T, double step, bool save_traiectory,
                       mat *traiectory, std::string method)
@@ -276,6 +300,7 @@ mat transition_matrix(SystemDescriptor &system, double t0, mat x0, mat params,
 
 // TODO consider returning event times maybe in a row with value 1 each time an
 // event occurs.
+// TODO discover initial condition for matrix in shooting
 
 mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
              double step, uint max_iters, bool save_traiectory,
@@ -305,6 +330,7 @@ mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
       EventStruct result = {current_label, t, x};
       while (t < tend)
       {
+        mat x_p = x;
         x = integrate(system, t, x, params, step, &result);
         if (save_traiectory)
         {
@@ -322,12 +348,13 @@ mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
         }
         if (result.event != current_label)
         {
-          // saltation matrix;
           // maybe save event encountered in a row
+          W *= saltation_matrix(system, t, x_p, x, params, current_label,
+                                result.event);
         }
         else
         {
-          // classic monodromy
+          W *= system.GetJacobian(current_label)(t, x, params);
         }
         i++;
       }
