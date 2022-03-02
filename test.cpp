@@ -71,14 +71,16 @@ int main(int argc, char const *argv[])
     return ret;
   };
 
-  mat x0 = {0.5, 5};
-  mat m = traiectory(system, 0, x0.t(), {0.1, 1}, 100000, 0.001);
+  mat x0 = {0.5, 0.5};
+  // mat m = traiectory(system, 0, x0.t(), {0.025, 0.55}, 1000000, 0.001);
   constexpr double final_time = 100000 * 0.001;
 
-  mat monodromy = shooting(system, final_time, m.col(m.n_cols - 1), {0.1, 1}, 10.0, 0.001, 10);
+  // x0 = m.col(m.n_cols - 1);
+  mat shot;
+  mat monodromy = transition_matrix(system, 0, x0.t(), {0.025, 0.55}, 100, 0.001, true, &shot);
 
-  Log::Print() << monodromy << endl;
+  Log::Print() << "monodromy: " << monodromy << endl;
 
-  m.save("data.csv", arma::csv_ascii);
+  shot.save("data.csv", arma::csv_ascii);
   return 0;
 }

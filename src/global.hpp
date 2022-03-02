@@ -20,3 +20,5 @@
 #ifndef WINDOWS
 // #define WINDOWS
 #endif
+
+// #define ARMA_EXTRA_DEBUG

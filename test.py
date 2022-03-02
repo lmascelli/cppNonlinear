@@ -2,8 +2,6 @@ import os
 import sys
 from typing import List, Tuple
 
-from numpy import append
-
 """
 This script is made specifically for the test system so it must load the
 computed data and plot:
@@ -16,7 +14,7 @@ computed data and plot:
 - shooting:
 """
 
-from enum import auto
+
 import matplotlib.pyplot as plt
 
 
@@ -78,12 +76,12 @@ def plot_transient(data: Data) -> None:
 if __name__ == '__main__':
     args = sys.argv[1:]
     for command in args:
-        if command == '--plot':
+        if command == 'plot':
             data = load_data()
             plot_transient(data)
-        elif command == '--build':
+        elif command == 'build':
             os.system('cd build && cmake --build . && cd ..')
-        elif command == '--run':
+        elif command == 'run':
             os.system('cd build && test.exe')
         else:
             print(f'option {command} not valid')

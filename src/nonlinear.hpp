@@ -124,28 +124,6 @@ private:
  */
 
 /**
- * This function compute a step in interating the system looking if there
- * is an intersaction with a manifold if EVENT_FUNC is passed, returning
- * the next value and setting event related info in RESULT.
- *
- * @param f the function ruling the system
- * @param t0 initial time
- * @param x0 initial condition
- * @param args COLUMN vector with other argument of f (parameters)
- * @param h the step size
- * @param n_step the number of sub interval the H step will equally divided
- * @param event the function for checking manifold intersection
- * @param result a pointer to a EVENT_STRUCT where to store the event result
- * @param method the algorithm to be used; avaliable:
- *        - "newton": Newton's method
- *        - "rk3": Runge-Kutta 3rd order
- * @return the value of the system at next step
- */
-mat integrate(system_func f, double t0, mat x0, mat args, double h,
-              uint n_steps = 10, event_func event = nullptr,
-              EventStruct *result = nullptr, std::string method = "euler");
-
-/**
  * @brief Compute and integration step of a system
  * @param system the SystemDescriptor of the system
  * @param t0 initial time
