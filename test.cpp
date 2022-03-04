@@ -1,6 +1,5 @@
-#include "src/analysis.hpp"
-#include "src/nonlinear.hpp"
-#include "src/utils.hpp"
+#include "nonlinear/utils.hpp"
+#include "nonlinear/nonlinear.hpp"
 
 int main(int argc, char const *argv[])
 {
