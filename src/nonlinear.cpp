@@ -7,7 +7,6 @@
  * SystemDescriptor METHODS
  * ----------------------------------------------------------------------------
  */
-
 system_func SystemDescriptor::GetFunction(const uint i) const
 {
   return F[i];

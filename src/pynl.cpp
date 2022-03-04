@@ -1,7 +1,7 @@
 #include "pynl.hpp"
 #include <iostream>
-using uint = unsigned int;
-// #include "nonlinear.cpp"
+#include "nonlinear.hpp"
+using std::cout, std::endl;
 
 // extern SystemDescriptor _system;
 
@@ -17,16 +17,32 @@ const char *pynl_doc = "";
 static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
 {
     double t0;
-    // mat x0;
-    // mat params;
+    mat x0;
+    mat params;
     uint n_points;
     double step;
     std::string method = "euler";
-    PyObject *list;
-    if (PyArg_ParseTuple(args, "dO", &t0, list))
+    PyObject *x0_list, *params_list;
+    if (PyArg_ParseTuple(args, "dOOd", &t0, &x0_list, &params_list, &step))
     {
-        std::cout << t0 << std::endl;
-        // Log::Print() << t0 << endl;
+        cout << "t0: " << t0 << endl;
+        uint system_size = PyList_Size(x0_list);
+        x0 = mat(system_size, 1);
+        for (uint i = 0; i < system_size; i++)
+        {
+            x0(i, 0) = PyFloat_AsDouble(PyList_GetItem(x0_list, i));
+        }
+        cout << "x0: \n"
+             << x0 << endl;
+        uint params_size = PyList_Size(params_list);
+        params = mat(params_size, 1);
+        for (uint i = 0; i < params_size; i++)
+        {
+            params(i, 0) = PyFloat_AsDouble(PyList_GetItem(params_list, i));
+        }
+        cout << "params: \n"
+             << params << endl;
+        cout << "step: " << step << endl;
     }
     return Py_None;
 }
