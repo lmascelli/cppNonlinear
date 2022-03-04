@@ -6,3 +6,5 @@ compile_commands.json
 src/test_schema.txt
 src/global.hpp
 pynl.pyd
+__pycache__/pynl.cpython-39.pyc
+pynl.so

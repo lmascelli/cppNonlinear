@@ -16,6 +16,7 @@
   - Computation:
     - [ ] Structure an analysis class with all data needed for a point in parameter space
       - [X] Software implementation
+        - [ ] Symplify what does not require time as parameter
       - [ ] Diagram representation
     - [X] Compute the transient
       - [X] Check if there is a correct switch between system function at manifold crossing
@@ -35,6 +36,9 @@
       - [X] State variable vs time
       - [ ] Plots legend and axis labels
     - [ ] Store and plot a parameter space analysis
+    - [ ] For a given set of parameter:
+      - [ ] quiver plot of field
+      - [ ] set of traiectory
 
   - Compilation toolchain stuff:
     - [ ] Make python script installed with binaries by CMake

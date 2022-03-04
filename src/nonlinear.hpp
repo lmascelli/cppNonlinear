@@ -216,3 +216,8 @@ mat transition_matrix(SystemDescriptor &system, double t0, mat X0, mat params, d
 mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
              double step, uint max_iters, bool save_traiectory = false,
              mat *traiectory = nullptr, std::string method = "euler");
+
+// TODO change implementation for avoiding copy of return vector
+std::vector<mat> vector_field_2d(SystemDescriptor &system, double xmin,
+                                 double xmax, double ymin, double ymax,
+                                 uint x_points, uint y_points, mat params);

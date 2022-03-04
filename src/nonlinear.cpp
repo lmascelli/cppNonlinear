@@ -287,3 +287,23 @@ mat shooting(SystemDescriptor &system, double t0, const mat x0, mat params,
 
   return W;
 }
+
+std::vector<mat> vector_field_2d(SystemDescriptor &system, double xmin,
+                                 double xmax, double ymin, double ymax,
+                                 uint x_points, uint y_points, mat params)
+{
+  std::vector<mat> ret;
+  ret.resize(x_points * y_points);
+  const double dx = (xmax - xmin) / x_points;
+  const double dy = (ymax - ymin) / y_points;
+
+  for (uint i = 0; i < x_points; i++)
+    for (int j = 0; j < y_points; j++)
+    {
+      mat x = {xmin + dx * i, ymin + dx * i};
+      uint label = system.manifold(0, x.t());
+      ret[j * x_points + i] = x;
+    }
+
+  return ret;
+}
