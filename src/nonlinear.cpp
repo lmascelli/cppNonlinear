@@ -294,7 +294,14 @@ std::vector<mat> vector_field_2d(SystemDescriptor &system, double xmin,
     {
       mat x = {xmin + dx * i, ymin + dx * i};
       uint label = system.manifold(0, x.t());
-      ret[j * x_points + i] = x;
+      switch (system.GetType(label))
+      {
+      case SystemDescriptor::EQUATION:
+        ret[j * x_points + i] = system.GetFunction(label)(0, x, params);
+        break;
+      case SystemDescriptor::MAP:
+        ret[j * x_points + i] = arma::zeros(2, 1);
+      }
     }
 
   return ret;

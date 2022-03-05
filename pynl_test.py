@@ -1,22 +1,19 @@
 from typing import List
 import matplotlib.pyplot as plt
 import pynl_bind as nl
+import numpy as np
 import system_test
-
-
-def plot_transient(data: List[List[float]]) -> None:
-    """
-    TODO da aggiungere axis label e title
-    """
-    plt.subplot(3, 1, 1)
-    plt.plot(data[0], data[1])
-    plt.subplot(3, 1, 2)
-    plt.plot(data[0], data[2])
-    plt.subplot(3, 1, 3)
-    plt.plot(data[1], data[2])
-    plt.show()
 
 
 system = system_test.GetSystemDescriptor()
 
-nl.vector_field_2d(system, -10, 10, -30, 30, 10, 10, [0.1, 0.2])
+
+def test(xrange: List[float], yrange: List[float], points: List[float],
+         params: List[float]) -> None:
+    vf = nl.vector_field_2d(
+        system, xrange[0], xrange[1], yrange[0], yrange[1], points[0], points[1], params)
+    nl.plot_vector_field(xrange, yrange, points[0], points[1], vf)
+    plt.show()
+
+
+test([-100, 30], [100, -100], [10, 10], [0.5, 0.5])

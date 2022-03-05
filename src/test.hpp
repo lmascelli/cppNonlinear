@@ -1,6 +1,12 @@
 #include "nonlinear.hpp"
 
+#ifdef WINDOWS
+#define DECL_DLL __declspec(dllexport)
+#else
+#define DECL_DLL
+#endif
+
 extern "C"
 {
-    SystemDescriptor __declspec(dllexport) * getSystemDescriptor();
+    SystemDescriptor DECL_DLL *getSystemDescriptor();
 }

@@ -1,6 +1,11 @@
 #include <Python.h>
 #include "src/nonlinear.hpp"
 
+static void system_destroy(PyObject *system)
+{
+    delete (SystemDescriptor *)PyCapsule_GetPointer(system, "system_test.system");
+}
+
 static PyObject *getSystemDescriptor(PyObject *self, PyObject *args)
 {
     SystemDescriptor *system = new SystemDescriptor();
@@ -70,7 +75,7 @@ static PyObject *getSystemDescriptor(PyObject *self, PyObject *args)
 
     //***********************************************
 
-    return PyCapsule_New((void *)system, "system_test.system", NULL);
+    return PyCapsule_New((void *)system, "system_test.system", system_destroy);
 }
 
 static PyMethodDef System_testMethods[] = {
@@ -84,11 +89,6 @@ static struct PyModuleDef system_testmodule = {
     NULL,
     -1,
     System_testMethods};
-
-static void system_destroy(PyObject *system)
-{
-    delete PyCapsule_GetPointer(system, "system_test.system");
-}
 
 PyMODINIT_FUNC
 PyInit_system_test(void)

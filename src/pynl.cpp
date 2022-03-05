@@ -101,6 +101,16 @@ static PyObject *pynl_vector_field_2d(PyObject *self, PyObject *args)
              << params << endl;
         std::vector<mat> vf = vector_field_2d(*system, xmin, xmax, ymin, ymax,
                                               x_points, y_points, params);
+
+        ret = PyList_New(x_points * y_points);
+        PyObject **points = new PyObject *[x_points * y_points];
+        for (uint i = 0; i < x_points * y_points; i++)
+        {
+            points[i] = PyList_New(2);
+            PyList_SET_ITEM(points[i], 0, PyFloat_FromDouble(vf[i](0, 0)));
+            PyList_SET_ITEM(points[i], 1, PyFloat_FromDouble(vf[i](1, 0)));
+            PyList_SET_ITEM(ret, i, points[i]);
+        }
     }
     else
     {
