@@ -1,9 +1,6 @@
 #include "pynl.hpp"
 #include <iostream>
-#include "nonlinear.hpp"
-using std::cout, std::endl;
-
-// extern SystemDescriptor _system;
+#include "test.hpp"
 
 const char *pynl_doc = "";
 
@@ -22,29 +19,50 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
     uint n_points;
     double step;
     std::string method = "euler";
-    PyObject *x0_list, *params_list;
-    if (PyArg_ParseTuple(args, "dOOd", &t0, &x0_list, &params_list, &step))
+    PyObject *x0_list, *params_list, *tmat_ret;
+    tmat_ret = Py_None;
+    if (PyArg_ParseTuple(args, "dOOId", &t0, &x0_list, &params_list, &n_points, &step))
     {
-        cout << "t0: " << t0 << endl;
+        std::cout << "t0: " << t0 << std::endl;
         uint system_size = PyList_Size(x0_list);
         x0 = mat(system_size, 1);
         for (uint i = 0; i < system_size; i++)
         {
             x0(i, 0) = PyFloat_AsDouble(PyList_GetItem(x0_list, i));
         }
-        cout << "x0: \n"
-             << x0 << endl;
+        std::cout << "x0: \n"
+                  << x0 << std::endl;
         uint params_size = PyList_Size(params_list);
         params = mat(params_size, 1);
         for (uint i = 0; i < params_size; i++)
         {
             params(i, 0) = PyFloat_AsDouble(PyList_GetItem(params_list, i));
         }
-        cout << "params: \n"
-             << params << endl;
-        cout << "step: " << step << endl;
+        std::cout << "params: \n"
+                  << params << std::endl
+                  << "n_points: " << n_points << std::endl
+                  << "step: " << step << std::endl;
+
+        SystemDescriptor *system = getSystemDescriptor();
+        mat t = traiectory(*system, t0, x0, params, n_points, step);
+        PyObject *t_ret;
+        PyObject *x_ret[system_size];
+        tmat_ret = PyList_New(1 + system_size);
+        t_ret = PyList_New(t.n_cols);
+        for (uint row = 0; row < system_size; row++)
+            x_ret[row] = PyList_New(t.n_cols);
+        for (uint col = 0; col < t.n_cols; col++)
+        {
+            PyList_SET_ITEM(t_ret, col, PyFloat_FromDouble(t(0, col)));
+            for (uint row = 1; row = system_size; row++)
+                PyList_SET_ITEM(x_ret[row - 1], col, PyFloat_FromDouble(t(row, col)));
+        }
+        PyList_SetItem(tmat_ret, 0, t_ret);
+        for (uint row = 0; row < system_size; row++)
+            PyList_SetItem(tmat_ret, row + 1, x_ret[row]);
+        delete system;
     }
-    return Py_None;
+    return tmat_ret;
 }
 
 static PyMethodDef PynlMethods[] = {

@@ -8,3 +8,5 @@ src/global.hpp
 pynl.pyd
 __pycache__/pynl.cpython-39.pyc
 pynl.so
+data.csv
+__pycache__/pynl_bind.cpython-39.pyc

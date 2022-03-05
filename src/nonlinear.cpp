@@ -1,7 +1,5 @@
 #include "nonlinear.hpp"
-#include "utils.hpp"
 #include <cassert>
-
 /**
  * ----------------------------------------------------------------------------
  * SystemDescriptor METHODS
@@ -32,8 +30,6 @@ void SystemDescriptor::AddFunction(system_func f,
     FJ.push_back(jac);
   else
   {
-    Log::Print() << "No analytical jacobian for func " << F.size() - 1 << endl
-                 << "It will be calculated analytically if required" << endl;
     //    FJ.push_back([f](double t, mat x, mat params) {
     //          mat ret = jacobian(f, t, x, params);
     //          return ret;
@@ -213,7 +209,6 @@ mat transition_matrix(SystemDescriptor &system, double t0, mat x0, mat params,
   };
   mat m_matrix = arma::eye(system_size, system_size); // initial matrix is I: x0 = I * x0
   const uint n_step = floor(T / step);
-  Log::Print() << "N_step: " << n_step << endl;
   if (save_traiectory)
   {
     *traiectory = mat(system_size + 1, n_step);
@@ -270,12 +265,9 @@ mat shooting(SystemDescriptor &system, double t0, const mat x0, mat params,
   const uint system_size = x0.n_rows;          // System size
   mat W = arma::eye(system_size, system_size); // Initial transition matrix
   const uint n_steps = ceil(T / step);         // number of integration steps
-  Log::Print() << "Shooting method started" << endl
-               << "Maximum number of tries: " << n_steps << endl;
 
   if (save_traiectory && traiectory)
   {
-    Log::Print() << "Saving traiectory" << endl;
     *traiectory = mat(system_size + 1, n_steps);
   }
 

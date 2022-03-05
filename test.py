@@ -35,7 +35,7 @@ def manifold(data: Data) -> Tuple[List[float], List[float]]:
     return (times, values)
 
 
-def load_data(filepath="build/data.csv") -> Data:
+def load_data(filepath="data.csv") -> Data:
     """
     It is assumpted that data are located in the same folder of this scriot.
     If not specify the filepath of data.csv
