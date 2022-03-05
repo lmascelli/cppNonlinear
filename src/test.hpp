@@ -1,3 +1,6 @@
 #include "nonlinear.hpp"
 
-SystemDescriptor *getSystemDescriptor();
+extern "C"
+{
+    SystemDescriptor __declspec(dllexport) * getSystemDescriptor();
+}

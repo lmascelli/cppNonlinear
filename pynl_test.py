@@ -1,6 +1,7 @@
 from typing import List
 import matplotlib.pyplot as plt
 import pynl_bind as nl
+import system_test
 
 
 def plot_transient(data: List[List[float]]) -> None:
@@ -16,7 +17,7 @@ def plot_transient(data: List[List[float]]) -> None:
     plt.show()
 
 
-t = nl.traiectory(0, [0, 0], [0.5, 0.5], 100000, 1e-3)
-print(t)
-# if t:
-#     plot_transient(t)
+system = system_test.GetSystemDescriptor()
+t = nl.traiectory(system, 0, [0, 0], [0.5, 0.5], 100000, 1e-3)
+if t:
+    plot_transient(t)

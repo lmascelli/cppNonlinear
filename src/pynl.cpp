@@ -2,6 +2,8 @@
 #include <iostream>
 #include "test.hpp"
 
+using std::cout, std::endl;
+
 const char *pynl_doc = "";
 
 /**
@@ -19,12 +21,13 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
     uint n_points;
     double step;
     std::string method = "euler";
-    PyObject *x0_list, *params_list, *tmat_ret;
+    PyObject *x0_list, *params_list, *tmat_ret, *system_capsule;
     tmat_ret = Py_None;
-    if (PyArg_ParseTuple(args, "dOOId", &t0, &x0_list, &params_list, &n_points, &step))
+    if (PyArg_ParseTuple(args, "OdOOId", &system_capsule, &t0, &x0_list, &params_list, &n_points, &step))
     {
         std::cout << "t0: " << t0 << std::endl;
         uint system_size = PyList_Size(x0_list);
+        cout << system_size << endl;
         x0 = mat(system_size, 1);
         for (uint i = 0; i < system_size; i++)
         {
@@ -43,10 +46,13 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
                   << "n_points: " << n_points << std::endl
                   << "step: " << step << std::endl;
 
-        SystemDescriptor *system = getSystemDescriptor();
+        SystemDescriptor *system =
+            (SystemDescriptor *)PyCapsule_GetPointer(system_capsule, "system_test.system");
+        if (!system)
+            cout << "Error loading system" << endl;
         mat t = traiectory(*system, t0, x0, params, n_points, step);
         PyObject *t_ret;
-        PyObject *x_ret[system_size];
+        PyObject **x_ret = new PyObject *[system_size];
         tmat_ret = PyList_New(1 + system_size);
         t_ret = PyList_New(t.n_cols);
         for (uint row = 0; row < system_size; row++)
@@ -54,13 +60,13 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
         for (uint col = 0; col < t.n_cols; col++)
         {
             PyList_SET_ITEM(t_ret, col, PyFloat_FromDouble(t(0, col)));
-            for (uint row = 1; row = system_size; row++)
-                PyList_SET_ITEM(x_ret[row - 1], col, PyFloat_FromDouble(t(row, col)));
+            for (uint row = 0; row < system_size; row++)
+                PyList_SET_ITEM(x_ret[row], col, PyFloat_FromDouble(t(row + 1, col)));
         }
         PyList_SetItem(tmat_ret, 0, t_ret);
         for (uint row = 0; row < system_size; row++)
             PyList_SetItem(tmat_ret, row + 1, x_ret[row]);
-        delete system;
+        cout << "Here" << endl;
     }
     return tmat_ret;
 }
