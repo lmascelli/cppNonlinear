@@ -27,7 +27,6 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
     {
         std::cout << "t0: " << t0 << std::endl;
         uint system_size = PyList_Size(x0_list);
-        cout << system_size << endl;
         x0 = mat(system_size, 1);
         for (uint i = 0; i < system_size; i++)
         {
@@ -47,7 +46,8 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
                   << "step: " << step << std::endl;
 
         SystemDescriptor *system =
-            (SystemDescriptor *)PyCapsule_GetPointer(system_capsule, "system_test.system");
+            (SystemDescriptor *)PyCapsule_GetPointer(system_capsule,
+                                                     "system_test.system");
         if (!system)
             cout << "Error loading system" << endl;
         mat t = traiectory(*system, t0, x0, params, n_points, step);
@@ -61,19 +61,60 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
         {
             PyList_SET_ITEM(t_ret, col, PyFloat_FromDouble(t(0, col)));
             for (uint row = 0; row < system_size; row++)
-                PyList_SET_ITEM(x_ret[row], col, PyFloat_FromDouble(t(row + 1, col)));
+                PyList_SET_ITEM(x_ret[row], col,
+                                PyFloat_FromDouble(t(row + 1, col)));
         }
         PyList_SetItem(tmat_ret, 0, t_ret);
         for (uint row = 0; row < system_size; row++)
             PyList_SetItem(tmat_ret, row + 1, x_ret[row]);
-        cout << "Here" << endl;
+    }
+    else
+    {
+        cout << "ERROR: PyNl_traijectory. Parsing argument failed." << endl;
     }
     return tmat_ret;
 }
 
+static PyObject *pynl_vector_field_2d(PyObject *self, PyObject *args)
+{
+    PyObject *ret = Py_None;
+    PyObject *system_capsule, *params_list;
+    double xmin, xmax, ymin, ymax;
+    uint x_points, y_points;
+    mat params;
+    if (PyArg_ParseTuple(args, "OddddIIO", &system_capsule,
+                         &xmin, &xmax, &ymin, &ymax, &x_points, &y_points,
+                         &params_list))
+    {
+        SystemDescriptor *system = (SystemDescriptor *)
+            PyCapsule_GetPointer(system_capsule, "system_test.system");
+        uint params_size = PyList_Size(params_list);
+        params = mat(1, params_size);
+        for (uint i = 0; i < params_size; i++)
+            params(0, i) = PyFloat_AsDouble(PyList_GET_ITEM(params_list, i));
+
+        cout << "xmin: " << xmin << ", xmax: " << xmax << endl
+             << "ymin: " << ymin << ", ymax: " << ymax << endl
+             << "# x points: " << x_points << ", # y points: " << y_points
+             << endl
+             << "params:" << endl
+             << params << endl;
+        std::vector<mat> vf = vector_field_2d(*system, xmin, xmax, ymin, ymax,
+                                              x_points, y_points, params);
+    }
+    else
+    {
+        cout << "ERROR: PyNl_vector_field_2d. Parsing argument failed."
+             << endl;
+    }
+    return ret;
+}
+
 static PyMethodDef PynlMethods[] = {
     {"traiectory", pynl_traiectory, METH_VARARGS,
-     "Plot a traiectory."},
+     "Compute a traiectory."},
+    {"vector_field_2d", pynl_vector_field_2d, METH_VARARGS,
+     "Compute a vector field."},
     {NULL, NULL, 0, NULL}};
 
 static struct PyModuleDef pynlmodule = {

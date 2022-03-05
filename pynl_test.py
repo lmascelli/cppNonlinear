@@ -18,6 +18,5 @@ def plot_transient(data: List[List[float]]) -> None:
 
 
 system = system_test.GetSystemDescriptor()
-t = nl.traiectory(system, 0, [0, 0], [0.5, 0.5], 100000, 1e-3)
-if t:
-    plot_transient(t)
+
+nl.vector_field_2d(system, -10, 10, -30, 30, 10, 10, [0.1, 0.2])
