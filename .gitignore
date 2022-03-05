@@ -11,3 +11,4 @@ pynl.so
 data.csv
 __pycache__/pynl_bind.cpython-39.pyc
 system_test.pyd
+system_test.so
