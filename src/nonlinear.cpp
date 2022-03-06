@@ -1,5 +1,6 @@
 #include "nonlinear.hpp"
 #include <cassert>
+using std::cout, std::endl;
 /**
  * ----------------------------------------------------------------------------
  * SystemDescriptor METHODS
@@ -101,7 +102,6 @@ mat integrate(SystemDescriptor &system, double t0, mat x0, mat args,
   }
   return x0;
 }
-
 /**
  * TODO check if the function switch the current label in case of manifold cross.
  */
@@ -208,7 +208,7 @@ mat transition_matrix(SystemDescriptor &system, double t0, mat x0, mat params,
     traiectory->operator()(arma::span(1, system_size), pos) = x;
   };
   mat m_matrix = arma::eye(system_size, system_size); // initial matrix is I: x0 = I * x0
-  const uint n_step = floor(T / step);
+  const uint n_step = (uint)floor(T / step);
   if (save_traiectory)
   {
     *traiectory = mat(system_size + 1, n_step);
@@ -264,7 +264,7 @@ mat shooting(SystemDescriptor &system, double t0, const mat x0, mat params,
   assert(x0.n_rows == 2 and x0.n_cols == 1);   // Check x0 is a column vector
   const uint system_size = x0.n_rows;          // System size
   mat W = arma::eye(system_size, system_size); // Initial transition matrix
-  const uint n_steps = ceil(T / step);         // number of integration steps
+  const uint n_steps = (uint)ceil(T / step);   // number of integration steps
 
   if (save_traiectory && traiectory)
   {
@@ -284,13 +284,19 @@ std::vector<mat> vector_field_2d(SystemDescriptor &system, double xmin,
                                  double xmax, double ymin, double ymax,
                                  uint x_points, uint y_points, mat params)
 {
-  std::vector<mat> ret;
+  std::vector<arma::Mat<double>> ret;
   ret.resize(x_points * y_points);
-  const double dx = (xmax - xmin) / x_points;
-  const double dy = (ymax - ymin) / y_points;
 
-  for (uint i = 0; i < x_points; i++)
-    for (int j = 0; j < y_points; j++)
+  // std::cout << "xmin: " << xmin << ", xmax: " << xmax << endl
+  //           << "ymin: " << ymin << ", ymax: " << ymax << endl
+  //           << "nx: " << x_points << ", ny:" << y_points << endl
+  //           << "params: " << endl
+  //           << params << endl;
+  const double dx = (xmax - xmin) / (double)x_points;
+  const double dy = (ymax - ymin) / (double)y_points;
+
+  for (double i = 0; i < x_points; i++)
+    for (double j = 0; j < y_points; j++)
     {
       mat x = {xmin + dx * i, ymin + dx * i};
       uint label = system.manifold(0, x.t());
@@ -301,6 +307,7 @@ std::vector<mat> vector_field_2d(SystemDescriptor &system, double xmin,
         break;
       case SystemDescriptor::MAP:
         ret[j * x_points + i] = arma::zeros(2, 1);
+        break;
       }
     }
 

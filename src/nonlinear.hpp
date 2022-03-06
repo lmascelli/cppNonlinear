@@ -12,7 +12,7 @@ using arma::mat;
  * ----------------------------------------------------------------------------
  */
 #ifdef LINUX
-using uint = unsigned int;
+using uint = unsigned long long int;
 #elif defined(WINDOWS)
 using uint = uint64_t;
 #endif
