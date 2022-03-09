@@ -22,7 +22,7 @@ using uint = uint64_t;
  * @param params COLUMN array containg the paramaters value of the system
  * @return the value of the system at time T, coords X, parameters PARAMS
  */
-using system_func = mat (*)(double, mat, mat);
+using System_func = mat (*)(mat, mat);
 /**
  * @brief This is a function evaluating the region of space where different
  *        functions rule the system.
@@ -30,7 +30,7 @@ using system_func = mat (*)(double, mat, mat);
  * @param x coords
  * @return a label rapresenting the region where the system is.
  */
-using event_func = uint (*)(double, mat);
+using Event_func = uint (*)(mat);
 
 /*
  * ----------------------------------------------------------------------------
@@ -46,7 +46,6 @@ using event_func = uint (*)(double, mat);
 struct EventStruct
 {
   uint event; // label rapresenting the manifold intersected
-  double t;   // time of event occurred
   mat x;      // value of the traiectory at event releaved
 };
 
@@ -81,14 +80,14 @@ public:
    * @param t the type of the function, default EQUATION
    * @param jac the jacobian of f, if none it will be computed numerically
    */
-  void AddFunction(system_func f, FunctionType t = FunctionType::EQUATION,
-                   system_func jac = nullptr);
+  void AddFunction(System_func f, FunctionType t = FunctionType::EQUATION,
+                   System_func jac = nullptr);
   /**
    * @brief Returns the ith function of the system
    * @param i the index of the function
    * @return The system function associated to that index
    */
-  system_func GetFunction(const uint i) const;
+  System_func GetFunction(const uint i) const;
 
   /**
    * @brief Get the Jacobian function if any, otherwise it return a numerically
@@ -97,7 +96,7 @@ public:
    * @param i the index of the function
    * @return Analitically if provided jacobian, otherwise numerical.
    */
-  system_func GetJacobian(const uint i) const;
+  System_func GetJacobian(const uint i) const;
 
   /**
    * @brief Ge
@@ -107,20 +106,36 @@ public:
    */
   FunctionType GetType(const uint i) const;
 
-  event_func manifold; // the function that given a point in the state-time
-  // parameter returns the index of the corresponding
-  // equation int vector F.
+  Event_func manifold;  // the function that given a point in the state-time
+                        // parameter returns the index of the corresponding
+                        // equation int vector F.
 
-  system_func manifold_gradient;
-  system_func manifold_time_derivative;
+  System_func manifold_gradient;
+  System_func manifold_time_derivative;
 
 private:
   uint           current_insered_function;
   uint           n_func; // Number of system functions
-  system_func   *F;      // System functions
+  System_func   *F;      // System functions
   FunctionType  *Ft;     // System functions types
-  system_func   *Fj;     // System functions jacobian
+  System_func   *Fj;     // System functions jacobian
  };
+
+
+/**
+ * @brief The result of an integration step
+ *
+ * (x, event) 
+ * x:     the next s
+ * event: the flag of the new field if some, -1 otherwise
+ */
+
+using IntegrationResult = struct 
+{
+  mat   x;
+  uint  event;
+};
+
 
 /*
  * ----------------------------------------------------------------------------
@@ -131,24 +146,22 @@ private:
 /**
  * @brief Compute and integration step of a system
  * @param system the SystemDescriptor of the system
- * @param t0 initial time
  * @param x0 initial conditions
- * @param args system parameters
+ * @param params system parameters
  * @param step integration step size
  * @param event_result an EventStruct pointer where to store event result
  * @param sub_steps number of substeps for integration
  * @param method integration algorithm; avaliable:
  *               - "euler": Euler's method
  *               - "rk3": Runge-Kutta 3rd order
- * @return mat  the system value at (t0 + step)
+ * @return mat  the system value at next step
  */
-mat integrate(SystemDescriptor &system, double t0, mat x0, mat args, double step,
-              EventStruct *event_result = nullptr, uint sub_steps = 10,
-              std::string method = "euler");
+IntegrationResult integrate(SystemDescriptor &system, mat x0, mat params,
+              double step, EventStruct *event_result = nullptr,
+              uint sub_steps = 10, std::string method = "euler");
 
 /**
- * @brief Computes the traiectory of the system from time t0 to time
- *        t0 + n_step * step
+ * @brief Computes the traiectory of the system for the next n_step steps.
  *
  * @param system: the SystemDescriptor of the system
  * @param t0: the initial time
@@ -158,9 +171,7 @@ mat integrate(SystemDescriptor &system, double t0, mat x0, mat args, double step
  * @param method: the algorithm to be used; possible values:
  *                - "euler": Euler's method
  *                - "rk3": Runge-Kutta 3rd order
- * @returns a matrix with n_steps column made such:
- *          [t
- *           x]
+ * @returns an IntegrationResult struct with next value and event if any
  */
 
 mat traiectory(SystemDescriptor &system, double t0, mat x0, mat params,
@@ -170,15 +181,14 @@ mat traiectory(SystemDescriptor &system, double t0, mat x0, mat params,
  * @brief The jacboian of the f function
  *
  * @param f function whose jacobian must be computed
- * @param t time value
  * @param x coordinate value
- * @param args parameters value
+ * @param params parameters value
  * @param h derivative step
  * @return mat jacobian matrix
  */
-mat jacobian(system_func f, double t, mat x, mat args, double h = 1e-6);
+mat jacobian(System_func f, mat x, mat params, double h = 1e-6);
 
-mat saltation_matrix(SystemDescriptor &system, double t, mat x_previous,
+mat saltation_matrix(SystemDescriptor &system, mat x_previous,
                      mat x_next, mat params, uint label1, uint label2);
 
 /**
@@ -188,7 +198,6 @@ mat saltation_matrix(SystemDescriptor &system, double t, mat x_previous,
  *        period or not so the name may be not exact.
  *
  * @param system the system descriptor
- * @param t0 initial time
  * @param X0 initial conditions
  * @param params system params
  * @param T period
@@ -198,14 +207,13 @@ mat saltation_matrix(SystemDescriptor &system, double t, mat x_previous,
  *               - "rk3": Runge-Kutta 3rd order method
  * @return mat the transition matrix
  */
-mat transition_matrix(SystemDescriptor &system, double t0, mat X0, mat params, double T,
+mat transition_matrix(SystemDescriptor &system, mat X0, mat params, double T,
                       double step, bool save_traiectory = false, mat *traiectory = nullptr, std::string method = "euler");
 
 /**
  * @brief Shooting algorithm for finding the period T of a limit cycle
  *
  * @param system system descriptor object
- * @param t0 initial time
  * @param x0 initial condition
  * @param params system params
  * @param T the starting guess for period
@@ -218,7 +226,7 @@ mat transition_matrix(SystemDescriptor &system, double t0, mat X0, mat params, d
  *               - "rk3": Runge-Kutta 3rd order
  * @return mat the monodromy matrix
  */
-mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
+mat shooting(SystemDescriptor &system, mat x0, mat params, double T,
              double step, uint max_iters, bool save_traiectory = false,
              mat *traiectory = nullptr, std::string method = "euler");
 

@@ -1,8 +1,5 @@
 #include "pynl.hpp"
-#include <iostream>
 #include "test.hpp"
-
-using std::cout, std::endl;
 
 const char *pynl_doc = "";
 
@@ -25,31 +22,22 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
     tmat_ret = Py_None;
     if (PyArg_ParseTuple(args, "OdOOId", &system_capsule, &t0, &x0_list, &params_list, &n_points, &step))
     {
-        std::cout << "t0: " << t0 << std::endl;
         uint system_size = PyList_Size(x0_list);
         x0 = mat(system_size, 1);
         for (uint i = 0; i < system_size; i++)
         {
             x0(i, 0) = PyFloat_AsDouble(PyList_GetItem(x0_list, i));
         }
-        std::cout << "x0: \n"
-                  << x0 << std::endl;
         uint params_size = PyList_Size(params_list);
         params = mat(params_size, 1);
         for (uint i = 0; i < params_size; i++)
         {
             params(i, 0) = PyFloat_AsDouble(PyList_GetItem(params_list, i));
         }
-        std::cout << "params: \n"
-                  << params << std::endl
-                  << "n_points: " << n_points << std::endl
-                  << "step: " << step << std::endl;
 
         SystemDescriptor *system =
             (SystemDescriptor *)PyCapsule_GetPointer(system_capsule,
                                                      "system_test.system");
-        if (!system)
-            cout << "Error loading system" << endl;
         mat t = traiectory(*system, t0, x0, params, n_points, step);
         PyObject *t_ret;
         PyObject **x_ret = new PyObject *[system_size];
@@ -70,7 +58,7 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
     }
     else
     {
-        cout << "ERROR: PyNl_traijectory. Parsing argument failed." << endl;
+      // Signal error
     }
     return tmat_ret;
 }
@@ -93,12 +81,6 @@ static PyObject *pynl_vector_field_2d(PyObject *self, PyObject *args)
         for (uint i = 0; i < params_size; i++)
             params(0, i) = PyFloat_AsDouble(PyList_GET_ITEM(params_list, i));
 
-        cout << "xmin: " << xmin << ", xmax: " << xmax << endl
-             << "ymin: " << ymin << ", ymax: " << ymax << endl
-             << "# x points: " << x_points << ", # y points: " << y_points
-             << endl
-             << "params:" << endl
-             << params << endl;
         std::vector<mat> vf = vector_field_2d(*system, xmin, xmax, ymin, ymax,
                                               x_points, y_points, params);
 
@@ -114,8 +96,7 @@ static PyObject *pynl_vector_field_2d(PyObject *self, PyObject *args)
     }
     else
     {
-        cout << "ERROR: PyNl_vector_field_2d. Parsing argument failed."
-             << endl;
+      // Signal error
     }
     return ret;
 }
