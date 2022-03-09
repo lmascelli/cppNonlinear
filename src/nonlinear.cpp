@@ -1,23 +1,43 @@
 #include "nonlinear.hpp"
-#include <cassert>
+#include <assert.h>
+#include <stdlib.h>
 using std::cout, std::endl;
 /**
  * ----------------------------------------------------------------------------
  * SystemDescriptor METHODS
  * ----------------------------------------------------------------------------
  */
+
+SystemDescriptor::SystemDescriptor(uint n_func)
+{
+  current_insered_function = 0;
+  this->n_func = n_func;
+  this->F = (system_func*)malloc(n_func*sizeof(system_func));
+  this->Ft = (FunctionType*)malloc(n_func*sizeof(FunctionType));
+  this->Fj = (system_func*)malloc(n_func*sizeof(system_func));
+}
+
+SystemDescriptor::~SystemDescriptor(){
+  free(Fj);
+  free(Ft);
+  free(F);
+}
+
 system_func SystemDescriptor::GetFunction(const uint i) const
 {
+  assert(i >= 0 && i < this->current_insered_function);
   return F[i];
 }
 
 SystemDescriptor::FunctionType SystemDescriptor::GetType(const uint i) const
 {
+  assert(i >= 0 && i < this->current_insered_function);
   return Ft[i];
 }
 
 system_func SystemDescriptor::GetJacobian(const uint i) const
 {
+  assert(i >= 0 && i < this->current_insered_function);
   return FJ[i];
 }
 
@@ -25,18 +45,15 @@ void SystemDescriptor::AddFunction(system_func f,
                                    SystemDescriptor::FunctionType type,
                                    system_func jac)
 {
-  F.push_back(f);
-  Ft.push_back(type);
+  F[current_insered_function] = f;
+  Ft[current_insered_function] = type;
   if (jac)
-    FJ.push_back(jac);
+    Fj[current_insered_function] = jac;
   else
   {
-    //    FJ.push_back([f](double t, mat x, mat params) {
-    //          mat ret = jacobian(f, t, x, params);
-    //          return ret;
-    //        });
-    FJ.push_back(nullptr);
+    Fj[current_insered_function] = NULL;
   }
+  current_insered_function++;
 }
 
 /**

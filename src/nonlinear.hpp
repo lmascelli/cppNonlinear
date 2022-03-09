@@ -2,8 +2,6 @@
 
 #include "global.hpp"
 #include <armadillo>
-#include <string>
-#include <vector>
 using arma::mat;
 
 /*
@@ -70,6 +68,14 @@ public:
   };
 
   /**
+   * @brief SystemDescriptor constructor function
+   * @param n_func the number of functions of the system, be them equations or 
+   *        map
+   */
+  SystemDescriptor(uint n_func);
+  ~SystemDescriptor();
+
+  /**
    * @brief Insert a function in the system
    * @param f the function to insert
    * @param t the type of the function, default EQUATION
@@ -109,13 +115,12 @@ public:
   system_func manifold_time_derivative;
 
 private:
-  std::vector<system_func>
-      F; // the equation ruling the system
-  std::vector<FunctionType> Ft;
-  std::vector<system_func> FJ; // the Jacobian of the F functions;
-                               // if not provided then it will be calculated
-                               // numerically
-};
+  uint           current_insered_function;
+  uint           n_func; // Number of system functions
+  system_func   *F;      // System functions
+  FunctionType  *Ft;     // System functions types
+  system_func   *Fj;     // System functions jacobian
+ };
 
 /*
  * ----------------------------------------------------------------------------
@@ -218,6 +223,6 @@ mat shooting(SystemDescriptor &system, double t0, mat x0, mat params, double T,
              mat *traiectory = nullptr, std::string method = "euler");
 
 // TODO change implementation for avoiding copy of return vector
-std::vector<mat> vector_field_2d(SystemDescriptor &system, double xmin,
+mat** vector_field_2d(SystemDescriptor &system, double xmin,
                                  double xmax, double ymin, double ymax,
                                  uint x_points, uint y_points, mat params);
