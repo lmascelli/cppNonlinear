@@ -4,3 +4,4 @@
 #include <Python.h>
 
 static PyObject *pynl_traiectory(PyObject *self, PyObject *args);
+static PyObject *pynl_vector_field_2d(PyObject *self, PyObject *args);

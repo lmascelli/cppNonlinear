@@ -9,11 +9,7 @@ using arma::mat;
  * TYPES DECLARATION
  * ----------------------------------------------------------------------------
  */
-#ifdef LINUX
 using uint = unsigned long long int;
-#elif defined(WINDOWS)
-using uint = uint64_t;
-#endif
 
 /**
  * @brief Type representing a function that describe a system
@@ -39,17 +35,6 @@ using Event_func = uint (*)(mat);
  */
 
 /**
- * This struct hold the result of an event found by the integrate function
- * and contains the EVENT label, the time T at which the event occurred and
- * the X value it was.
- */
-struct EventStruct
-{
-  uint event; // label rapresenting the manifold intersected
-  mat x;      // value of the traiectory at event releaved
-};
-
-/**
  * This class contains the ruling equations of the system and the manifold
  * rules, if any, to switch between them.
  */
@@ -68,7 +53,7 @@ public:
 
   /**
    * @brief SystemDescriptor constructor function
-   * @param n_func the number of functions of the system, be them equations or 
+   * @param n_func the number of functions of the system, be them equations or
    *        map
    */
   SystemDescriptor(uint n_func);
@@ -106,36 +91,34 @@ public:
    */
   FunctionType GetType(const uint i) const;
 
-  Event_func manifold;  // the function that given a point in the state-time
-                        // parameter returns the index of the corresponding
-                        // equation int vector F.
+  Event_func manifold; // the function that given a point in the state-time
+                       // parameter returns the index of the corresponding
+                       // equation int vector F.
 
   System_func manifold_gradient;
   System_func manifold_time_derivative;
 
 private:
-  uint           current_insered_function;
-  uint           n_func; // Number of system functions
-  System_func   *F;      // System functions
-  FunctionType  *Ft;     // System functions types
-  System_func   *Fj;     // System functions jacobian
- };
-
+  uint current_insered_function;
+  uint n_func;      // Number of system functions
+  System_func *F;   // System functions
+  FunctionType *Ft; // System functions types
+  System_func *Fj;  // System functions jacobian
+};
 
 /**
  * @brief The result of an integration step
  *
- * (x, event) 
+ * (x, event)
  * x:     the next s
  * event: the flag of the new field if some, -1 otherwise
  */
 
-using IntegrationResult = struct 
+using IntegrationResult = struct
 {
-  mat   x;
-  uint  event;
+  mat x;
+  uint event;
 };
-
 
 /*
  * ----------------------------------------------------------------------------
@@ -149,16 +132,13 @@ using IntegrationResult = struct
  * @param x0 initial conditions
  * @param params system parameters
  * @param step integration step size
- * @param event_result an EventStruct pointer where to store event result
- * @param sub_steps number of substeps for integration
  * @param method integration algorithm; avaliable:
  *               - "euler": Euler's method
  *               - "rk3": Runge-Kutta 3rd order
  * @return mat  the system value at next step
  */
 IntegrationResult integrate(SystemDescriptor &system, mat x0, mat params,
-              double step, EventStruct *event_result = nullptr,
-              uint sub_steps = 10, std::string method = "euler");
+                            double step, std::string method = "euler");
 
 /**
  * @brief Computes the traiectory of the system for the next n_step steps.
@@ -188,49 +168,49 @@ mat traiectory(SystemDescriptor &system, double t0, mat x0, mat params,
  */
 mat jacobian(System_func f, mat x, mat params, double h = 1e-6);
 
-mat saltation_matrix(SystemDescriptor &system, mat x_previous,
-                     mat x_next, mat params, uint label1, uint label2);
+// mat saltation_matrix(SystemDescriptor &system, mat x_previous,
+//                      mat x_next, mat params, uint label1, uint label2);
 
-/**
- * @brief The transition matrix calculate over a period T
- *        Teoretically the monodromy matrix is calculate over a period but this
- *        function calculate this kind of matrix over any T, be it the exact
- *        period or not so the name may be not exact.
- *
- * @param system the system descriptor
- * @param X0 initial conditions
- * @param params system params
- * @param T period
- * @param step integration step size
- * @param method integration algorith; available:
- *               - "euler": first order implicit Euler method,
- *               - "rk3": Runge-Kutta 3rd order method
- * @return mat the transition matrix
- */
-mat transition_matrix(SystemDescriptor &system, mat X0, mat params, double T,
-                      double step, bool save_traiectory = false, mat *traiectory = nullptr, std::string method = "euler");
+// /**
+//  * @brief The transition matrix calculate over a period T
+//  *        Teoretically the monodromy matrix is calculate over a period but this
+//  *        function calculate this kind of matrix over any T, be it the exact
+//  *        period or not so the name may be not exact.
+//  *
+//  * @param system the system descriptor
+//  * @param X0 initial conditions
+//  * @param params system params
+//  * @param T period
+//  * @param step integration step size
+//  * @param method integration algorith; available:
+//  *               - "euler": first order implicit Euler method,
+//  *               - "rk3": Runge-Kutta 3rd order method
+//  * @return mat the transition matrix
+//  */
+// mat transition_matrix(SystemDescriptor &system, mat X0, mat params, double T,
+//                       double step, bool save_traiectory = false, mat *traiectory = nullptr, std::string method = "euler");
 
-/**
- * @brief Shooting algorithm for finding the period T of a limit cycle
- *
- * @param system system descriptor object
- * @param x0 initial condition
- * @param params system params
- * @param T the starting guess for period
- * @param step integration step
- * @param max_iters max number of shooting trial
- * @param save_traiectory if true must provide a pointer to a mat wher to store
- * @param traiectory the pointer to a already instantiated matrix
- * @param method integration algorithm, available:
- *               - "euler": Euler's method,
- *               - "rk3": Runge-Kutta 3rd order
- * @return mat the monodromy matrix
- */
-mat shooting(SystemDescriptor &system, mat x0, mat params, double T,
-             double step, uint max_iters, bool save_traiectory = false,
-             mat *traiectory = nullptr, std::string method = "euler");
+// /**
+//  * @brief Shooting algorithm for finding the period T of a limit cycle
+//  *
+//  * @param system system descriptor object
+//  * @param x0 initial condition
+//  * @param params system params
+//  * @param T the starting guess for period
+//  * @param step integration step
+//  * @param max_iters max number of shooting trial
+//  * @param save_traiectory if true must provide a pointer to a mat wher to store
+//  * @param traiectory the pointer to a already instantiated matrix
+//  * @param method integration algorithm, available:
+//  *               - "euler": Euler's method,
+//  *               - "rk3": Runge-Kutta 3rd order
+//  * @return mat the monodromy matrix
+//  */
+// mat shooting(SystemDescriptor &system, mat x0, mat params, double T,
+//              double step, uint max_iters, bool save_traiectory = false,
+//              mat *traiectory = nullptr, std::string method = "euler");
 
 // TODO change implementation for avoiding copy of return vector
-mat** vector_field_2d(SystemDescriptor &system, double xmin,
-                                 double xmax, double ymin, double ymax,
-                                 uint x_points, uint y_points, mat params);
+mat **vector_field_2d(SystemDescriptor &system, double xmin,
+                      double xmax, double ymin, double ymax,
+                      uint x_points, uint y_points, mat params);

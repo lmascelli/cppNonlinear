@@ -58,7 +58,7 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
     }
     else
     {
-      // Signal error
+        // Signal error
     }
     return tmat_ret;
 }
@@ -81,22 +81,22 @@ static PyObject *pynl_vector_field_2d(PyObject *self, PyObject *args)
         for (uint i = 0; i < params_size; i++)
             params(0, i) = PyFloat_AsDouble(PyList_GET_ITEM(params_list, i));
 
-        std::vector<mat> vf = vector_field_2d(*system, xmin, xmax, ymin, ymax,
-                                              x_points, y_points, params);
+        mat **vf = vector_field_2d(*system, xmin, xmax, ymin, ymax,
+                                   x_points, y_points, params);
 
         ret = PyList_New(x_points * y_points);
         PyObject **points = new PyObject *[x_points * y_points];
         for (uint i = 0; i < x_points * y_points; i++)
         {
             points[i] = PyList_New(2);
-            PyList_SET_ITEM(points[i], 0, PyFloat_FromDouble(vf[i](0, 0)));
-            PyList_SET_ITEM(points[i], 1, PyFloat_FromDouble(vf[i](1, 0)));
+            PyList_SET_ITEM(points[i], 0, PyFloat_FromDouble((*vf)[i](0, 0)));
+            PyList_SET_ITEM(points[i], 1, PyFloat_FromDouble((*vf)[i](1, 0)));
             PyList_SET_ITEM(ret, i, points[i]);
         }
     }
     else
     {
-      // Signal error
+        // Signal error
     }
     return ret;
 }

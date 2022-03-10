@@ -8,13 +8,13 @@ static void system_destroy(PyObject *system)
 
 static PyObject *getSystemDescriptor(PyObject *self, PyObject *args)
 {
-    SystemDescriptor *system = new SystemDescriptor();
+    SystemDescriptor *system = new SystemDescriptor(2);
 
     // Implement system functions here
     //***********************************************
 
     system->AddFunction(
-        [](double t, mat x, mat param)
+        [](mat x, mat param)
         {
         const double a = 0.04;
         const double b = 5;
@@ -31,7 +31,7 @@ static PyObject *getSystemDescriptor(PyObject *self, PyObject *args)
      *  y -> y + 4
      */
     system->AddFunction(
-        [](double t, mat x, mat param)
+        [](mat x, mat param)
         {
             const double d = -55;
             const double f = 4;
@@ -45,7 +45,7 @@ static PyObject *getSystemDescriptor(PyObject *self, PyObject *args)
      *
      *  x >= 30
      */
-    system->manifold = [](double, mat x)
+    system->manifold = [](mat x)
     {
         const double xTH = 30;
         uint ret = x(0) >= xTH ? 1 : 0;
@@ -57,7 +57,7 @@ static PyObject *getSystemDescriptor(PyObject *self, PyObject *args)
      * manifold(x, y) = x - 30
      * gradient -> (1, 0)
      */
-    system->manifold_gradient = [](double t, mat x, mat params)
+    system->manifold_gradient = [](mat x, mat params)
     {
         mat ret{1, 0};
         return ret;
@@ -67,7 +67,7 @@ static PyObject *getSystemDescriptor(PyObject *self, PyObject *args)
      * @brief the time derivative is always 0
      *
      */
-    system->manifold_time_derivative = [](double t, mat x, mat params)
+    system->manifold_time_derivative = [](mat x, mat params)
     {
         mat ret = arma::zeros(1, 1);
         return ret;

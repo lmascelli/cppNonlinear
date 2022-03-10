@@ -17,6 +17,6 @@ target_link_libraries(nonlinear PUBLIC ${ARMADILLO_LIBRARIES})
 
 find_package(Python COMPONENTS Development REQUIRED)
 add_library(pynl SHARED
-    pynl.cpp        pynl.hpp)
+    pynl.cpp        )
 target_include_directories(pynl PUBLIC ${Python_INCLUDE_DIRS})
 target_link_libraries(pynl PUBLIC nonlinear ${Python_LIBRARIES})
