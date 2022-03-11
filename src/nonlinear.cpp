@@ -260,7 +260,7 @@ mat **vector_field_2d(SystemDescriptor &system, double xmin,
     for (uint j = 0; j < y_points; j++)
     {
       ret[j * x_points + i] = new mat(2, 1);
-      mat x = {xmin + dx * i, ymin + dx * i};
+      mat x = {xmin + dx * i, ymin + dy * j};
       uint label = system.manifold(x);
       switch (system.GetType(label))
       {

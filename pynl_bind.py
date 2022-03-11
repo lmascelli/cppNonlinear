@@ -39,4 +39,6 @@ def plot_vector_field(xrange: List[float], yrange: List[float], x_points: int,
     for i, x_el in enumerate(x):
         for j, y_el in enumerate(y):
             plt.quiver(x_el, y_el, data[j*x_points + i][0],
-                       data[j*x_points + i][1], units='width')
+                       data[j*x_points + i][1],
+                       scale=1e4,
+                       width=0.003)

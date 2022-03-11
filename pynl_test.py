@@ -46,9 +46,9 @@ def test(xrange: List[float], yrange: List[float], points: List[float],
         system, xrange[0], xrange[1], yrange[0], yrange[1], points[0], points[1], params)
     vtpc = vfp(xrange, yrange, points, params)
     nl.plot_vector_field(xrange, yrange, points[0], points[1], vf)
-    printvf(vf, points[0])
-    printvf(vtpc, points[0])
+    # printvf(vf, points[0])
+    # printvf(vtpc, points[0])
     plt.show()
 
 
-test([-220, 50], [-100, 300], [30, 30], [0.1, 1])
+test([-220, 50], [-100, 100], [30, 30], [1, 1])

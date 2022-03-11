@@ -92,11 +92,10 @@ static PyObject *pynl_vector_field_2d(PyObject *self, PyObject *args)
 
         for (uint i = 0; i < x_points * y_points; i++)
         {
+            vf[i]->print();
             points[i] = PyList_New(2);
-            PyList_SET_ITEM(points[i], 0, PyFloat_FromDouble((*vf)[i](0, 0)));
-            printf("%f\n", (*vf)[i](0, 0));
-            PyList_SET_ITEM(points[i], 1, PyFloat_FromDouble((*vf)[i](1, 0)));
-            printf("%f\n", (*vf)[i](1, 0));
+            PyList_SET_ITEM(points[i], 0, PyFloat_FromDouble(vf[i]->at(0)));
+            PyList_SET_ITEM(points[i], 1, PyFloat_FromDouble(vf[i]->at(1)));
             PyList_SET_ITEM(ret, i, points[i]);
         }
     }
