@@ -1,5 +1,8 @@
 #include "pynl.hpp"
-#include "test.hpp"
+#include <armadillo>
+#include "nonlinear.hpp"
+
+using arma::mat;
 
 const char *pynl_doc = "";
 
@@ -12,15 +15,15 @@ const char *pynl_doc = "";
  */
 static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
 {
-    double t0;
     mat x0;
     mat params;
     uint n_points;
     double step;
-    std::string method = "euler";
+    const char *method = "euler";
     PyObject *x0_list, *params_list, *tmat_ret, *system_capsule;
     tmat_ret = Py_None;
-    if (PyArg_ParseTuple(args, "OdOOId", &system_capsule, &t0, &x0_list, &params_list, &n_points, &step))
+    if (PyArg_ParseTuple(args, "OOOId", &system_capsule,
+                         &x0_list, &params_list, &n_points, &step))
     {
         uint system_size = PyList_Size(x0_list);
         x0 = mat(system_size, 1);
@@ -38,7 +41,7 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
         SystemDescriptor *system =
             (SystemDescriptor *)PyCapsule_GetPointer(system_capsule,
                                                      "system_test.system");
-        mat t = traiectory(*system, t0, x0, params, n_points, step);
+        mat t = traiectory(*system, x0, params, n_points, step);
         PyObject *t_ret;
         PyObject **x_ret = new PyObject *[system_size];
         tmat_ret = PyList_New(1 + system_size);
@@ -58,7 +61,8 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
     }
     else
     {
-        // Signal error
+        printf(
+            "ERROR: pynl_traiectory --- failed parsing function parameters.");
     }
     return tmat_ret;
 }
@@ -83,20 +87,23 @@ static PyObject *pynl_vector_field_2d(PyObject *self, PyObject *args)
 
         mat **vf = vector_field_2d(*system, xmin, xmax, ymin, ymax,
                                    x_points, y_points, params);
-
         ret = PyList_New(x_points * y_points);
         PyObject **points = new PyObject *[x_points * y_points];
+
         for (uint i = 0; i < x_points * y_points; i++)
         {
             points[i] = PyList_New(2);
             PyList_SET_ITEM(points[i], 0, PyFloat_FromDouble((*vf)[i](0, 0)));
+            printf("%f\n", (*vf)[i](0, 0));
             PyList_SET_ITEM(points[i], 1, PyFloat_FromDouble((*vf)[i](1, 0)));
+            printf("%f\n", (*vf)[i](1, 0));
             PyList_SET_ITEM(ret, i, points[i]);
         }
     }
     else
     {
-        // Signal error
+        printf("ERROR: pynl_vector_field_2d"
+               " --- failed parsing function parameters.");
     }
     return ret;
 }

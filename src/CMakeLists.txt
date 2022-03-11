@@ -9,7 +9,6 @@ find_package(Armadillo CONFIG REQUIRED)
 
 add_library(nonlinear 
     nonlinear.cpp   nonlinear.hpp
-    test.cpp        test.hpp
     )
 target_include_directories(nonlinear PUBLIC ${ARMADILLO_INCLUDE_DIRS})
 target_link_libraries(nonlinear PUBLIC ${ARMADILLO_LIBRARIES})

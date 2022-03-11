@@ -9,7 +9,7 @@ using arma::mat;
  * TYPES DECLARATION
  * ----------------------------------------------------------------------------
  */
-using uint = unsigned long long int;
+using uint = unsigned int;
 
 /**
  * @brief Type representing a function that describe a system
@@ -154,7 +154,7 @@ IntegrationResult integrate(SystemDescriptor &system, mat x0, mat params,
  * @returns an IntegrationResult struct with next value and event if any
  */
 
-mat traiectory(SystemDescriptor &system, double t0, mat x0, mat params,
+mat traiectory(SystemDescriptor &system, mat x0, mat params,
                uint n_points, double step, std::string method = "euler");
 
 /**

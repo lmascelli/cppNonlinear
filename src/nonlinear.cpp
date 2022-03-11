@@ -1,6 +1,5 @@
 #include "nonlinear.hpp"
 #include <assert.h>
-#include <stdlib.h>
 /**
  * ----------------------------------------------------------------------------
  * SystemDescriptor METHODS
@@ -11,16 +10,16 @@ SystemDescriptor::SystemDescriptor(uint n_func)
 {
   current_insered_function = 0;
   this->n_func = n_func;
-  this->F = (System_func *)malloc(n_func * sizeof(System_func));
-  this->Ft = (FunctionType *)malloc(n_func * sizeof(FunctionType));
-  this->Fj = (System_func *)malloc(n_func * sizeof(System_func));
+  this->F = new System_func[n_func];
+  this->Ft = new FunctionType[n_func];
+  this->Fj = new System_func[n_func];
 }
 
 SystemDescriptor::~SystemDescriptor()
 {
-  free(Fj);
-  free(Ft);
-  free(F);
+  delete Fj;
+  delete Ft;
+  delete F;
 }
 
 System_func SystemDescriptor::GetFunction(const uint i) const
@@ -252,7 +251,7 @@ mat **vector_field_2d(SystemDescriptor &system, double xmin,
                       double xmax, double ymin, double ymax,
                       uint x_points, uint y_points, mat params)
 {
-  mat **ret = (mat **)malloc(x_points * y_points * sizeof(mat *));
+  mat **ret = new mat *[x_points * y_points];
 
   const double dx = (xmax - xmin) / (double)x_points;
   const double dy = (ymax - ymin) / (double)y_points;
@@ -260,9 +259,9 @@ mat **vector_field_2d(SystemDescriptor &system, double xmin,
   for (uint i = 0; i < x_points; i++)
     for (uint j = 0; j < y_points; j++)
     {
-      ret[j * x_points + i] = new mat;
+      ret[j * x_points + i] = new mat(2, 1);
       mat x = {xmin + dx * i, ymin + dx * i};
-      uint label = system.manifold(x.t());
+      uint label = system.manifold(x);
       switch (system.GetType(label))
       {
       case SystemDescriptor::EQUATION:
@@ -273,6 +272,5 @@ mat **vector_field_2d(SystemDescriptor &system, double xmin,
         break;
       }
     }
-
   return ret;
 }
