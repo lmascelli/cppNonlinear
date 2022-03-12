@@ -1,5 +1,5 @@
 #include <Python.h>
-#include "src/nonlinear.hpp"
+#include "nonlinear.hpp"
 
 static void system_destroy(PyObject *system)
 {

@@ -1,3 +1,11 @@
 /build
 /.vscode
 compile_commands.json
+pyLib/pynl.pyd
+pyLib/system_test.pyd
+pyLib/nonlinear/__pycache__/__init__.cpython-39.pyc
+pyLib/nonlinear/__pycache__/pynl_bind.cpython-39.pyc
+test/nonlinear/__pycache__/__init__.cpython-39.pyc
+test/nonlinear/__pycache__/pynl_bind.cpython-39.pyc
+test/pynl.pyd
+test/system_test.pyd
