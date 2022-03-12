@@ -9,3 +9,9 @@ test/nonlinear/__pycache__/__init__.cpython-39.pyc
 test/nonlinear/__pycache__/pynl_bind.cpython-39.pyc
 test/pynl.pyd
 test/system_test.pyd
+test/nonlinear/__pycache__/core.cpython-39.pyc
+test/nonlinear/__pycache__/plotting.cpython-39.pyc
+test/nonlinear/
+test/nonlinear/core.py
+test/nonlinear/plotting.py
+test/nonlinear/pynl_bind.py

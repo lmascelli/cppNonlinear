@@ -5,6 +5,10 @@ from nonlinear import core, plotting
 from typing import List
 
 
+# compiled library imports
+import nonlinear.pynl_bind as nl
+
+
 ######################################################
 #
 #               The system equations
@@ -32,34 +36,42 @@ def manifold(x: np.ndarray) -> int:
     return 1 if x[0] > 30 else 0
 
 
-################# System Descriptor ##################
-system = core.SystemDescriptor()
-system.add_function(f, core.EQUATION)
-system.add_function(map_f, core.MAP)
-system.manifold = manifold
-
-
 ######################################################
 #
 #                   Analysis script
 #
 ######################################################
-
-
-### Vector field of the system varying a parameter ###
-
 params = [0.5, 0.5]
 xrange = [-100., 35.]
 yrange = [-100., 100.]
 sampling_points = [30, 30]
 
-# plotting.test_vector_field(system, params,
-#                           plotting.Field_Options(
-#                               xrange, yrange, sampling_points))
 
-x0 = np.array([-10., -150.])
+def analysis():
+    ################# System Descriptor ###################
+    system = core.SystemDescriptor()
+    system.add_function(f, core.EQUATION)
+    system.add_function(map_f, core.MAP)
+    system.manifold = manifold
 
-t = core.traiectory(system, x0, params, 100000, 2e-4)
-plt.plot(t[1])
+    #### Vector field of the system varying a parameter ###
+    # plotting.test_vector_field(system, params,
+    #                           plotting.Field_Options(
+    #                               xrange, yrange, sampling_points))
 
-plt.show()
+    x0 = np.array([-10., -150.])
+
+    t = core.traiectory(system, x0, params, 100000, 2e-4)
+    plt.plot(t[1])
+
+    plt.show()
+
+
+def compiled_analysis():
+    system = nl.GetSystemDescriptor()
+    plotting.test_vector_field(system, params, plotting.Field_Options(
+        xrange, yrange, sampling_points), True)
+    plt.show()
+
+
+compiled_analysis()

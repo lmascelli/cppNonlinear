@@ -1,4 +1,5 @@
 from typing import List
+import system_test
 import pynl
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,11 +10,12 @@ def traiectory(system: object, x0: List[float], params: List[float],
     return pynl.traiectory(system, x0, params, n_points, step)
 
 
-def vector_field_2d(system: object, xmin: float, xmax: float, ymin: float,
-                    ymax: float, x_points: int, y_points: int,
+def vector_field_2d(system: object, xrange: List[float], yrange: List[float],
+                    sampling_points: List[int],
                     params: List[float]) -> List[List[float]]:
-    return pynl.vector_field_2d(system, xmin, xmax, ymin, ymax, x_points,
-                                y_points, params)
+    return pynl.vector_field_2d(system, xrange[0], xrange[1], yrange[1],
+                                yrange[1], sampling_points[0],
+                                sampling_points[1], params)
 
 
 def plot_transient(data: List[List[float]]) -> None:
@@ -42,3 +44,11 @@ def plot_vector_field(xrange: List[float], yrange: List[float], x_points: int,
                        data[j*x_points + i][1],
                        scale=1e4,
                        width=0.003)
+
+
+class CompiledSystemDescriptor:
+    pass
+
+
+def GetSystemDescriptor() -> CompiledSystemDescriptor:
+    return system_test.GetSystemDescriptor()

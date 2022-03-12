@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import List, Optional
-from . import core
+from typing import List, Optional, Union
+from . import core, pynl_bind
 
 
-def vector_field(vf: List[List[np.ndarray]], xrange: List[float],
+def vector_field(vf: List[List[float]], xrange: List[float],
                  yrange: List[float], points: List[int],
                  axes: Optional[plt.Axes]) -> None:
     x = np.linspace(xrange[0], xrange[1], points[0])
@@ -13,11 +13,13 @@ def vector_field(vf: List[List[np.ndarray]], xrange: List[float],
     for i in range(0, points[0]):
         for j in range(0, points[1]):
             if axes:
-                axes.quiver(x[i], y[j], vf[j][i][0], vf[j][i][1],
+                axes.quiver(x[i], y[j],
+                            vf[j*points[1]+i][0], vf[j*points[1]+i][1],
                             width=0.001,
                             scale=None)
             else:
-                plt.quiver(x[i], y[j], vf[j][i][0], vf[j][i][1],
+                plt.quiver(x[i], y[j],
+                           vf[j*points[1]+i][0], vf[j*points[1]+i][1],
                            width=0.001,
                            scale=None)
 
@@ -30,12 +32,17 @@ class Field_Options:
         self.sampling_points = sampling_points
 
 
-def test_vector_field(system: core.SystemDescriptor, params: List[float],
-                      options: Field_Options):
-    vf = core.vector_field(system, params,
-                           options.xrange,
-                           options.yrange,
-                           options.sampling_points)
+def test_vector_field(system: Union[core.SystemDescriptor,
+                                    pynl_bind.CompiledSystemDescriptor], params: List[float],
+                      options: Field_Options, compiled=False):
+
+    vf: List[List[float]] = None
+    if compiled:
+        vf = pynl_bind.vector_field_2d(system, options.xrange, options.yrange,
+                                       options.sampling_points, params)
+    else:
+        vf = core.vector_field(system, params, options.xrange, options.yrange,
+                               options.sampling_points)
     fig, ax = plt.subplots()
 
     def on_key_press(event):
@@ -51,8 +58,13 @@ def test_vector_field(system: core.SystemDescriptor, params: List[float],
         if event.key == 'down' and params[1] > 0:
             print('Decreasing betha')
             params[1] -= 0.1
-        vf = core.vector_field(system, params, options.xrange, options.yrange,
-                               options.sampling_points)
+
+        if compiled:
+            vf = pynl_bind.vector_field_2d(system, options.xrange, options.yrange,
+                                           options.sampling_points, params)
+        else:
+            vf = core.vector_field(system, params, options.xrange, options.yrange,
+                                   options.sampling_points)
         ax.clear()
         vector_field(vf, options.xrange, options.yrange,
                      options.sampling_points, ax)
