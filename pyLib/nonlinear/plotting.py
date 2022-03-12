@@ -14,14 +14,14 @@ def vector_field(vf: List[List[float]], xrange: List[float],
         for j in range(0, points[1]):
             if axes:
                 axes.quiver(x[i], y[j],
-                            vf[j*points[1]+i][0], vf[j*points[1]+i][1],
+                            vf[j*points[0]+i][0], vf[j*points[0]+i][0],
                             width=0.001,
-                            scale=None)
+                            scale=3000)
             else:
                 plt.quiver(x[i], y[j],
-                           vf[j*points[1]+i][0], vf[j*points[1]+i][1],
+                           vf[j*points[0]+i][0], vf[j*points[0]+i][1],
                            width=0.001,
-                           scale=None)
+                           scale=3000)
 
 
 class Field_Options:
@@ -36,7 +36,7 @@ def test_vector_field(system: Union[core.SystemDescriptor,
                                     pynl_bind.CompiledSystemDescriptor], params: List[float],
                       options: Field_Options, compiled=False):
 
-    vf: List[List[float]] = None
+    vf: List[List[float]] = []
     if compiled:
         vf = pynl_bind.vector_field_2d(system, options.xrange, options.yrange,
                                        options.sampling_points, params)
@@ -46,6 +46,7 @@ def test_vector_field(system: Union[core.SystemDescriptor,
     fig, ax = plt.subplots()
 
     def on_key_press(event):
+        global vf
         if event.key == 'right' and params[0] < 1:
             print('Increasing alpha')
             params[0] += 0.1

@@ -54,15 +54,14 @@ def analysis():
     system.add_function(map_f, core.MAP)
     system.manifold = manifold
 
+    params = [0.5, 0.5]
+    xrange = [-100., 35.]
+    yrange = [-100., 100.]
+    sampling_points = [30, 30]
     #### Vector field of the system varying a parameter ###
-    # plotting.test_vector_field(system, params,
-    #                           plotting.Field_Options(
-    #                               xrange, yrange, sampling_points))
-
-    x0 = np.array([-10., -150.])
-
-    t = core.traiectory(system, x0, params, 100000, 2e-4)
-    plt.plot(t[1])
+    plotting.test_vector_field(system, params,
+                               plotting.Field_Options(
+                                   xrange, yrange, sampling_points))
 
     plt.show()
 
@@ -74,4 +73,4 @@ def compiled_analysis():
     plt.show()
 
 
-compiled_analysis()
+analysis()

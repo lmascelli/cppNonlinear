@@ -13,7 +13,7 @@ def traiectory(system: object, x0: List[float], params: List[float],
 def vector_field_2d(system: object, xrange: List[float], yrange: List[float],
                     sampling_points: List[int],
                     params: List[float]) -> List[List[float]]:
-    return pynl.vector_field_2d(system, xrange[0], xrange[1], yrange[1],
+    return pynl.vector_field_2d(system, xrange[0], xrange[1], yrange[0],
                                 yrange[1], sampling_points[0],
                                 sampling_points[1], params)
 
