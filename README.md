@@ -1,7 +1,7 @@
 # cppNonlinear
 
 ## This is an attempt of analysing a non linear system with raw C++ and as less as possible external libraries. Libraries and tools that will be used are:
-- <a href=http://arma.sourceforge.net/>Armadillo</a>: A linear algebra library with a syntax that try to resemble to the Matlab one. <br> Anyway this <a href="https://gist.github.com/bkaradzic/2e39896bc7d8c34e042b">article</a>, combined with the huge amount of errors i encontered during the compilation of the binding module for using C++ function with Python made me consider use <a href="https://xtensor.readthedocs.io/en/latest/index.html">XTensor</a>
+- <a href=http://arma.sourceforge.net/>Armadillo</a>: A linear algebra library with a syntax that try to resemble to the Matlab one.
 - <b>Matplotlib</b>: A python toolkit for plotting data; i've choosen a tool for an other language because i've not found any good alternative that works with C++ directly
 - <b>Python</b>: A python script for reading and plot results of analysis; the choise of python over matlab comes from the fact i'm more used to work with it
 

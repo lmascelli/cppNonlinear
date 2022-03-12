@@ -1,0 +1,147 @@
+# da guardare
+- initial condition for matrix x[3:6]
+
+---------------------------------------------
+SHOOTING FUNCTION
+    shooting(data) -> [savedata, W]
+        ic <- data
+        t0 <- data
+        systemDim  <- data
+
+        In = eye(N)
+        tstart = t0
+        tend = t0 + data.nturns + data.T
+
+        FLAGS <- reinit_flag
+
+
+        savedata = {
+            t: cell[data.niter, 1];
+            x: cell[data.niter, 1];
+            te: cell[data.niter, 1];
+            xe: cell[data.niter, 1];
+            ie: cell[data.niter, 1];
+        }
+        
+        go = true
+
+        for (k = 1:niter) {
+            if (true) {
+                x0 = ic
+                tspan = [tstart tend]
+                t = tstart
+                while (t(end) < tend){
+                    odeset options...
+                    [t, x, te, xe, ie] = ode23(odefun, tspan, x0, opts)
+                    savedata.x[k] += x
+                    savedata.t[k] += t
+
+                    if not empty ie:
+                        // new flag and conditions for odefun and saltation matrix
+                        x0, data = switchfun(te, xe, data, ie)
+                        savedata.xe[k] += xe
+                        savedata.te[k] += te
+                        savedata.ie[k] += ie
+                }
+                W = savedata[k][3:6,end]-> 2x2
+                res = savedata[k][1:2, end] - savedata[k][1:2, 1]
+
+                dx = -(W-In)/res;
+                print itneration number
+                print residue
+                print dx
+
+                if abs(res) < 1e-9
+                    go = false
+                
+                ic = [savedata.x[k][1:2, 1] + dx, In(:)]
+                data = reinit_flag(t0, ic, data)
+            }
+            else break
+        }
+        savedata.x = savedata.x(1:k-1)
+        savedata.t = savedata.t(1:k-1)
+        savedata.xe = savedata.xe(1:k-1)
+        savedata.te = savedata.te(1:k-1)
+        savedata.ie = savedata.ie(1:k-1)
+
+---------------------------------------------
+- CONSTANTS DECLARATION
+- PARAMETER DECLARATION
+- FLAGS DECLARATION
+
+- ODEFUN DECLARATION
+    odefun(~, x, data) -> xp
+        xp = zero(size x)
+        x1 = x[1:2]
+        w = x[3:6] reshape --> matrice precedente
+
+        xp = current_system_func * x1 
+        wp = current_system_func * wp
+
+        return [xp wp]
+
+- JACFUN NUMERICAL
+
+- EVENTFUN DECLARATION
+    eventfun: necessary to detect event from matlab odefun
+
+- SWITCHFUN DECLARATION
+    switchfun(t, x, data, ie) -> [x0, newdata]
+        W = x[3:6] reshape
+        
+        fold = ODEFUN(t,x,data)
+        
+        dman = derivative of the manifold in (t, params)
+        gman = gradient of the manifold
+        newdata <- update FLAGS
+
+        fnew = ODEFUN(t, x, newdata)
+
+        S = eye(2) + ((fnew - fold)[1:2] * gman')/(gman'*fold[1:2] + dman) // saltation matrix
+        W = S*W
+
+        return [[x W], newdata] 
+
+- REINIT FLAG DECLARATION
+    reinit_flag(t, ic, data) -> newdata
+        manifold_value = mainfold(t, data.ic)
+        if ic < manifold
+            newdata.FLAGS event 1
+        else
+            newdata.FLAGS event 2
+        return newdata
+
+- INITIAL CONDITIONS
+- SET INITIAL FLAGS
+
+- COMPUTATION PARAMETERS
+    data. iteration number
+    data. nturn = periodo nturn*T
+
+ -  savedata, W = shooting(data)
+    sh_iter = size(savedata.t[1])
+    for k in 1:sh_iter {
+        t = savedata.t[k]
+        x = savedata.x[k]
+
+        figure(handle)
+        plot(x[1,:], x[2,:])
+    }
+
+    ee = eig(W)
+    figure(handle2)
+    plot unit circle
+    
+    fill parameter space
+    vv = linspace[...]
+    for j in range 1..sizeof(vv)
+        data.vin = vv(j)
+        data.ic = savedata.x[end, end], params
+        savedata, phi = shooting(data)
+        ee = eig(PHI)
+        plot(real(ee), img(ee))
+
+        // guardare analisi biforcazioni
+
+    end

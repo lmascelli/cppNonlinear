@@ -1,14 +1,3 @@
-/.cache
 /build
-/lbuild
 /.vscode
 compile_commands.json
-src/test_schema.txt
-src/global.hpp
-pynl.pyd
-__pycache__/pynl.cpython-39.pyc
-pynl.so
-data.csv
-__pycache__/pynl_bind.cpython-39.pyc
-system_test.pyd
-system_test.so
