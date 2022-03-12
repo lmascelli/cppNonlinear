@@ -15,3 +15,9 @@ test/nonlinear/
 test/nonlinear/core.py
 test/nonlinear/plotting.py
 test/nonlinear/pynl_bind.py
+test/pynl.so
+test/system_test.so
+test/nonlinear/__init__.py
+test/nonlinear/core.py
+test/nonlinear/plotting.py
+.gitignore
