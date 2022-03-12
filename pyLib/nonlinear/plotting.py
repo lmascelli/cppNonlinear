@@ -14,7 +14,7 @@ def vector_field(vf: List[List[float]], xrange: List[float],
         for j in range(0, points[1]):
             if axes:
                 axes.quiver(x[i], y[j],
-                            vf[j*points[0]+i][0], vf[j*points[0]+i][0],
+                            vf[j*points[0]+i][0], vf[j*points[0]+i][1],
                             width=0.001,
                             scale=3000)
             else:
@@ -45,21 +45,7 @@ def test_vector_field(system: Union[core.SystemDescriptor,
                                options.sampling_points)
     fig, ax = plt.subplots()
 
-    def on_key_press(event):
-        global vf
-        if event.key == 'right' and params[0] < 1:
-            print('Increasing alpha')
-            params[0] += 0.1
-        if event.key == 'left' and params[0] > 0:
-            print('Decreasing alpha')
-            params[0] -= 0.1
-        if event.key == 'up' and params[1] < 1:
-            print('Increasing betha')
-            params[1] += 0.1
-        if event.key == 'down' and params[1] > 0:
-            print('Decreasing betha')
-            params[1] -= 0.1
-
+    def replot():
         if compiled:
             vf = pynl_bind.vector_field_2d(system, options.xrange, options.yrange,
                                            options.sampling_points, params)
@@ -71,6 +57,24 @@ def test_vector_field(system: Union[core.SystemDescriptor,
                      options.sampling_points, ax)
         ax.set_title(f'a = {params[0]}, b = {params[1]}')
         fig.canvas.draw()
+
+    def on_key_press(event):
+        if event.key == 'right' and params[0] < 1:
+            print('Increasing alpha')
+            params[0] += 0.1
+            replot()
+        if event.key == 'left' and params[0] > 0:
+            print('Decreasing alpha')
+            params[0] -= 0.1
+            replot()
+        if event.key == 'up' and params[1] < 1:
+            print('Increasing betha')
+            params[1] += 0.1
+            replot()
+        if event.key == 'down' and params[1] > 0:
+            print('Decreasing betha')
+            params[1] -= 0.1
+            replot()
 
     fig.canvas.mpl_connect('key_press_event', on_key_press)
     vector_field(vf, options.xrange, options.yrange,

@@ -73,4 +73,4 @@ def compiled_analysis():
     plt.show()
 
 
-analysis()
+compiled_analysis()
