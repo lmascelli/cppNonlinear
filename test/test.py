@@ -21,14 +21,15 @@ f = 4
 def f(x: np.ndarray, params: List[float]) -> np.ndarray:
 
     return np.array([
-        # TODO
+        a*x[0]*x[0] + b*x[0]+c - x[1],
+        params[0]*(params[1]*x[0] - x[1])
     ])
 
 
 def f_jac(x: np.ndarray, params: List[float]) -> np.ndarray:
     return np.array([
         [2*a*x[0]-b, -1],
-        [-params[0], params[0]*params[1]]
+        [params[0]*params[1], -params[0]]
     ])
 
 
@@ -65,6 +66,7 @@ def equilibrium_points(params: List[float]) -> Tuple[bool, np.ndarray]:
 #                   Analysis script
 #
 ######################################################
+
 params = [0.5, 0.2]
 xrange = [-100., 35.]
 yrange = [-100., 100.]
