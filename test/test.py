@@ -28,7 +28,7 @@ def f(x: np.ndarray, params: List[float]) -> np.ndarray:
 
 def f_jac(x: np.ndarray, params: List[float]) -> np.ndarray:
     return np.array([
-        [2*a*x[0]-b, -1],
+        [2*a*x[0]+b, -1],
         [params[0]*params[1], -params[0]]
     ])
 
@@ -68,8 +68,8 @@ def equilibrium_points(params: List[float]) -> Tuple[bool, np.ndarray]:
 ######################################################
 
 params = [0.5, 0.2]
-xrange = [-100., 35.]
-yrange = [-100., 100.]
+xrange = [-63., -59.]
+yrange = [-6.4, -5.8]
 sampling_points = [30, 30]
 
 
@@ -79,6 +79,9 @@ def test_vector_field(system: Union[core.SystemDescriptor,
 
     fig, ax = plt.subplots()
     vf: List[List[float]] = []
+
+    def get_pivot(eig: float) -> str:
+        return 'tip' if eig < 0 else 'tail'
 
     def replot():
         if compiled:
@@ -95,13 +98,26 @@ def test_vector_field(system: Union[core.SystemDescriptor,
             ax.scatter(equ[0, :], equ[1, :])
 
             w1, v1 = np.linalg.eig(f_jac(equ[:, 0], params))
+            print(w1)
             w2, v2 = np.linalg.eig(f_jac(equ[:, 1], params))
+            print(w2)
 
-            ax.quiver(equ[0, 0], equ[1, 0], v1[0, 0], v1[1, 0])
-            ax.quiver(equ[0, 0], equ[1, 0], v1[0, 1], v1[1, 1])
-
-            ax.quiver(equ[0, 1], equ[1, 1], v2[0, 0], v2[1, 0])
-            ax.quiver(equ[0, 1], equ[1, 1], v2[0, 1], v2[1, 1])
+            ax.quiver(equ[0, 0], equ[1, 0], v1[0, 0],
+                      v1[1, 0], 1, pivot=get_pivot(w1[0]),
+                      width=0.003,
+                      scale=None)
+            ax.quiver(equ[0, 0], equ[1, 0], v1[0, 1],
+                      v1[1, 1], 1, pivot=get_pivot(w1[1]),
+                      width=0.003,
+                      scale=None)
+            ax.quiver(equ[0, 1], equ[1, 1], v2[0, 0],
+                      v2[1, 0], 1, pivot=get_pivot(w2[0]),
+                      width=0.003,
+                      scale=None)
+            ax.quiver(equ[0, 1], equ[1, 1], v2[0, 1],
+                      v2[1, 1], 1, pivot=get_pivot(w2[1]),
+                      width=0.003,
+                      scale=None)
 
         ax.set_title(f'a = {params[0]}, b = {params[1]}')
         fig.canvas.draw()
@@ -135,11 +151,6 @@ def analysis():
     system.add_function(map_f, core.MAP)
     system.manifold = manifold
 
-    params = [0.5, 0.5]
-    xrange = [-100., 35.]
-    yrange = [-100., 100.]
-    sampling_points = [30, 30]
-    #### Vector field of the system varying a parameter ###
     test_vector_field(system)
 
     plt.show()

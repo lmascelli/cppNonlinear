@@ -16,12 +16,12 @@ def vector_field(vf: List[List[float]], xrange: List[float],
                 axes.quiver(x[i], y[j],
                             vf[j*points[0]+i][0], vf[j*points[0]+i][1],
                             width=0.001,
-                            scale=3000)
+                            scale=None)
             else:
                 plt.quiver(x[i], y[j],
                            vf[j*points[0]+i][0], vf[j*points[0]+i][1],
                            width=0.001,
-                           scale=3000)
+                           scale=None)
 
 
 class Field_Options:

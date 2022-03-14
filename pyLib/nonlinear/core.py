@@ -1,16 +1,27 @@
 import numpy as np
 from typing import List, Callable, Tuple
 
-# Function Types
-EQUATION = 0
-MAP = 1
 
-INTEGRATION_METHOD = "Euler"
+# custom defined machine precision value
+EPSILON = 1e-9
+
+######################################################
+#
+#               CLASSES AND STRUCTURES
+#
+######################################################
+
 
 # A prototype for a function ruling the system
 # It must define the function and the type:
 # - EQUATION: and ODE function
 # - MAP: a mapping function
+
+# Function Types
+EQUATION = 0
+MAP = 1
+
+INTEGRATION_METHOD = "Euler"
 
 
 class System_Function:
@@ -39,6 +50,70 @@ class SystemDescriptor:
         self.functions.append(System_Function(function, function_type))
         self.function_number += 1
 
+
+# That's a class computing and  holding informations about the stability of an
+# equilibrium point
+
+class EquPointAnalisys:
+    UNKNOWN = -1
+    STABLE = 0
+    UNSTABLE = 1
+    SADLE = 2
+    CENTER = 3
+    STABLE_FOCUS = 4
+    UNSTABLE_FOCUS = 5
+
+    EQU_STR = {
+        UNKNOWN: "unkown",
+        STABLE: "stable",
+        UNSTABLE: "unstable",
+        SADLE: "sadle",
+        CENTER: "center",
+        STABLE_FOCUS: "stable focus",
+        UNSTABLE_FOCUS: "unstable focus",
+    }
+
+    def __init__(self, jac: Callable[[np.ndarray, List[float]],
+                                     np.ndarray],
+                 point: np.ndarray, params: List[float]):
+        self.point = point
+        self.eigenvalues, self.eigenvectors = np.linalg.eig(jac(point, params))
+
+        # TODO this script classify only 2D systems, maybe it can be
+        # enhanced with higher dimensional systems
+
+        if np.iscomplex(self.eigenvalues):                      # λ = A + iB
+            if np.abs(np.real(self.eigenvalues[0]) < EPSILON):  # A = 0
+                self.type = EquPointAnalisys.CENTER
+            elif np.real(self.eigenvalues[0]) > 0:
+                self.type = EquPointAnalisys.UNSTABLE_FOCUS     # A > 0
+            else:
+                self.type = EquPointAnalisys.STABLE_FOCUS       # A < 0
+
+        elif self.eigenvalues[0] > 0 and \
+                self.eigenvalues[1] > 0:                        # λ1 > 0 λ2 > 0
+            self.type = EquPointAnalisys.UNSTABLE
+
+        elif self.eigenvalues[0] > 0 and \
+                self.eigenvalues[1] < 0:                        # λ1 > 0 λ2 < 0
+            self.type = EquPointAnalisys.SADLE
+
+        elif self.eigenvalues[0] < 0 and \
+                self.eigenvalues[1] > 0:                        # λ1 < 0 λ2 > 0
+            self.type = EquPointAnalisys.SADLE
+
+        elif self.eigenvalues[0] < 0 and \
+                self.eigenvalues[1] < 0:                        # λ1 < 0 λ2 < 0
+            self.type = EquPointAnalisys.STABLE
+
+        else:
+            self.type = EquPointAnalisys.UNKNOWN
+
+######################################################
+#
+#                     FUNCTIONS
+#
+######################################################
 
 # Integrate a time step of a System
 # TODO implement also Runge-Kutta algorithm
