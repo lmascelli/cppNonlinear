@@ -1,15 +1,16 @@
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Button, Slider
 import numpy as np
 
 from nonlinear import core, plotting, pynl_bind
 from typing import List, Union, Tuple
 
 
-######################################################
+###############################################################################
 #
-#               The system equations
+#                             The system equations
 #
-######################################################
+###############################################################################
 
 a = 0.04
 b = 5.
@@ -18,7 +19,7 @@ d = -55
 f = 4
 
 
-def f(x: np.ndarray, params: List[float]) -> np.ndarray:
+def fun(x: np.ndarray, params: List[float]) -> np.ndarray:
 
     return np.array([
         a*x[0]*x[0] + b*x[0]+c - x[1],
@@ -61,12 +62,21 @@ def equilibrium_points(params: List[float]) -> Tuple[bool, np.ndarray]:
         )
 
 
-######################################################
+###############################################################################
 #
-#                   Analysis script
+#                               Analysis script
 #
-######################################################
+###############################################################################
 
+'''
+The analysis of the system follows this steps:
+    - plot of the vector field of the system varying with parameters
+      and plot of the equilibrium points if any with associated jacobian's
+      eigenvector and direction (given by eigenvalues)
+    - computation of the transient and eventually plot of it selecting the
+      initial condition in the state space
+    - plot of the eventual limit cycle
+'''
 params = [0.5, 0.2]
 xrange = [-63., -59.]
 yrange = [-6.4, -5.8]
@@ -78,7 +88,7 @@ def test_vector_field(system: Union[core.SystemDescriptor,
                       compiled=False):
 
     fig, ax = plt.subplots()
-    vf: List[List[float]] = []
+    plt.subplots_adjust(bottom=0.2)
 
     def get_pivot(eig: float) -> str:
         return 'tip' if eig < 0 else 'tail'
@@ -96,12 +106,10 @@ def test_vector_field(system: Union[core.SystemDescriptor,
         equ_exist, equ = equilibrium_points(params)
         if equ_exist:
             ax.scatter(equ[0, :], equ[1, :])
-
             w1, v1 = np.linalg.eig(f_jac(equ[:, 0], params))
             print(w1)
             w2, v2 = np.linalg.eig(f_jac(equ[:, 1], params))
             print(w2)
-
             ax.quiver(equ[0, 0], equ[1, 0], v1[0, 0],
                       v1[1, 0], 1, pivot=get_pivot(w1[0]),
                       width=0.003,
@@ -140,14 +148,23 @@ def test_vector_field(system: Union[core.SystemDescriptor,
             params[1] -= 0.1
             replot()
 
+    def on_reset_press(event):
+        pass
+
+    reset_ax = plt.axes([0.7, 0.05, 0.1, 0.075])
+    button_reset = Button(reset_ax, 'Reset')
+    button_reset.on_clicked(on_reset_press)
+
     fig.canvas.mpl_connect('key_press_event', on_key_press)
     replot()
 
 
 def analysis():
-    ################# System Descriptor ###################
+
+    ############################# System Descriptor ###########################
+
     system = core.SystemDescriptor()
-    system.add_function(f, core.EQUATION)
+    system.add_function(fun, core.EQUATION)
     system.add_function(map_f, core.MAP)
     system.manifold = manifold
 
