@@ -78,8 +78,8 @@ The analysis of the system follows this steps:
     - plot of the eventual limit cycle
 '''
 params = [0.5, 0.2]
-xrange = [-63., -59.]
-yrange = [-6.4, -5.8]
+xrange = [-90., 40.]
+yrange = [-100, 30.]
 sampling_points = [30, 30]
 
 
@@ -88,12 +88,12 @@ def test_vector_field(system: Union[core.SystemDescriptor,
                       compiled=False):
 
     fig, ax = plt.subplots()
-    plt.subplots_adjust(bottom=0.2)
 
     def get_pivot(eig: float) -> str:
         return 'tip' if eig < 0 else 'tail'
 
     def replot():
+        global xrange, yrange
         if compiled:
             vf = pynl_bind.vector_field_2d(system, xrange, yrange,
                                            sampling_points, params)
@@ -107,9 +107,7 @@ def test_vector_field(system: Union[core.SystemDescriptor,
         if equ_exist:
             ax.scatter(equ[0, :], equ[1, :])
             w1, v1 = np.linalg.eig(f_jac(equ[:, 0], params))
-            print(w1)
             w2, v2 = np.linalg.eig(f_jac(equ[:, 1], params))
-            print(w2)
             ax.quiver(equ[0, 0], equ[1, 0], v1[0, 0],
                       v1[1, 0], 1, pivot=get_pivot(w1[0]),
                       width=0.003,
@@ -126,9 +124,27 @@ def test_vector_field(system: Union[core.SystemDescriptor,
                       v2[1, 1], 1, pivot=get_pivot(w2[1]),
                       width=0.003,
                       scale=None)
+            ax.quiver(equ[0, 0], equ[1, 0], -v1[0, 0],
+                      -v1[1, 0], 1, pivot=get_pivot(w1[0]),
+                      width=0.003,
+                      scale=None)
+            ax.quiver(equ[0, 0], equ[1, 0], -v1[0, 1],
+                      -v1[1, 1], 1, pivot=get_pivot(w1[1]),
+                      width=0.003,
+                      scale=None)
+            ax.quiver(equ[0, 1], equ[1, 1], -v2[0, 0],
+                      -v2[1, 0], 1, pivot=get_pivot(w2[0]),
+                      width=0.003,
+                      scale=None)
+            ax.quiver(equ[0, 1], equ[1, 1], -v2[0, 1],
+                      -v2[1, 1], 1, pivot=get_pivot(w2[1]),
+                      width=0.003,
+                      scale=None)
 
         ax.set_title(f'a = {params[0]}, b = {params[1]}')
         fig.canvas.draw()
+        ax.callbacks.connect('xlim_changed', on_xaxes_change)
+        ax.callbacks.connect('ylim_changed', on_yaxes_change)
 
     def on_key_press(event):
         if event.key == 'right' and params[0] < 1:
@@ -147,13 +163,17 @@ def test_vector_field(system: Union[core.SystemDescriptor,
             print('Decreasing betha')
             params[1] -= 0.1
             replot()
+        if event.key == 'r':
+            print(xrange)
 
-    def on_reset_press(event):
-        pass
+    def on_xaxes_change(event):
+        global xrange
+        xrange = event.get_xlim()
+        print(xrange)
 
-    reset_ax = plt.axes([0.7, 0.05, 0.1, 0.075])
-    button_reset = Button(reset_ax, 'Reset')
-    button_reset.on_clicked(on_reset_press)
+    def on_yaxes_change(event):
+        global yrange
+        yrange = event.get_ylim()
 
     fig.canvas.mpl_connect('key_press_event', on_key_press)
     replot()
