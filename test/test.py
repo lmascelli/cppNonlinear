@@ -77,106 +77,107 @@ The analysis of the system follows this steps:
       initial condition in the state space
     - plot of the eventual limit cycle
 '''
-params = [0.5, 0.2]
-xrange = [-90., 40.]
-yrange = [-100, 30.]
-sampling_points = [30, 30]
 
 
-def test_vector_field(system: Union[core.SystemDescriptor,
-                                    pynl_bind.CompiledSystemDescriptor],
-                      compiled=False):
+class Analysis:
+    params = [0.5, 0.2]
+    xrange = [-90., 40.]
+    yrange = [-100, 30.]
+    sampling_points = [30, 30]
+    system: Union[core.SystemDescriptor, pynl_bind.CompiledSystemDescriptor]
 
-    fig, ax = plt.subplots()
+    def __init__(self,
+                 system: Union[core.SystemDescriptor, pynl_bind.CompiledSystemDescriptor],
+                 compiled: bool = False):
+        self.fig, self.ax = plt.subplots()
+        self.fig.canvas.mpl_connect('key_press_event', self.on_key_press)
+        self.system = system
+        self.compiled = compiled
+        self.replot()
 
-    def get_pivot(eig: float) -> str:
+    def get_pivot(self, eig: float) -> str:
         return 'tip' if eig < 0 else 'tail'
 
-    def replot():
-        global xrange, yrange
-        if compiled:
-            vf = pynl_bind.vector_field_2d(system, xrange, yrange,
-                                           sampling_points, params)
+    def replot(self):
+        if self.compiled:
+            vf = pynl_bind.vector_field_2d(self.system, self.xrange, self.yrange,
+                                           self.sampling_points, self.params)
         else:
-            vf = core.vector_field(system, params, xrange, yrange,
-                                   sampling_points)
-        ax.clear()
-        plotting.vector_field(vf, xrange, yrange,
-                              sampling_points, ax)
-        equ_exist, equ = equilibrium_points(params)
+            vf = core.vector_field(self.system, self.params, self.xrange, self.yrange,
+                                   self.sampling_points)
+        self.ax.clear()
+        plotting.vector_field(vf, self.xrange, self.yrange,
+                              self.sampling_points, self.ax)
+        equ_exist, equ = equilibrium_points(self.params)
         if equ_exist:
-            ax.scatter(equ[0, :], equ[1, :])
-            w1, v1 = np.linalg.eig(f_jac(equ[:, 0], params))
-            w2, v2 = np.linalg.eig(f_jac(equ[:, 1], params))
-            ax.quiver(equ[0, 0], equ[1, 0], v1[0, 0],
-                      v1[1, 0], 1, pivot=get_pivot(w1[0]),
-                      width=0.003,
-                      scale=None)
-            ax.quiver(equ[0, 0], equ[1, 0], v1[0, 1],
-                      v1[1, 1], 1, pivot=get_pivot(w1[1]),
-                      width=0.003,
-                      scale=None)
-            ax.quiver(equ[0, 1], equ[1, 1], v2[0, 0],
-                      v2[1, 0], 1, pivot=get_pivot(w2[0]),
-                      width=0.003,
-                      scale=None)
-            ax.quiver(equ[0, 1], equ[1, 1], v2[0, 1],
-                      v2[1, 1], 1, pivot=get_pivot(w2[1]),
-                      width=0.003,
-                      scale=None)
-            ax.quiver(equ[0, 0], equ[1, 0], -v1[0, 0],
-                      -v1[1, 0], 1, pivot=get_pivot(w1[0]),
-                      width=0.003,
-                      scale=None)
-            ax.quiver(equ[0, 0], equ[1, 0], -v1[0, 1],
-                      -v1[1, 1], 1, pivot=get_pivot(w1[1]),
-                      width=0.003,
-                      scale=None)
-            ax.quiver(equ[0, 1], equ[1, 1], -v2[0, 0],
-                      -v2[1, 0], 1, pivot=get_pivot(w2[0]),
-                      width=0.003,
-                      scale=None)
-            ax.quiver(equ[0, 1], equ[1, 1], -v2[0, 1],
-                      -v2[1, 1], 1, pivot=get_pivot(w2[1]),
-                      width=0.003,
-                      scale=None)
+            self.ax.scatter(equ[0, :], equ[1, :])
+            w1, v1 = np.linalg.eig(f_jac(equ[:, 0], self.params))
+            w2, v2 = np.linalg.eig(f_jac(equ[:, 1], self.params))
+            self.ax.quiver(equ[0, 0], equ[1, 0], v1[0, 0],
+                           v1[1, 0], 1, pivot=self.get_pivot(w1[0]),
+                           width=0.003,
+                           scale=None)
+            self.ax.quiver(equ[0, 0], equ[1, 0], v1[0, 1],
+                           v1[1, 1], 1, pivot=self.get_pivot(w1[1]),
+                           width=0.003,
+                           scale=None)
+            self.ax.quiver(equ[0, 1], equ[1, 1], v2[0, 0],
+                           v2[1, 0], 1, pivot=self.get_pivot(w2[0]),
+                           width=0.003,
+                           scale=None)
+            self.ax.quiver(equ[0, 1], equ[1, 1], v2[0, 1],
+                           v2[1, 1], 1, pivot=self.get_pivot(w2[1]),
+                           width=0.003,
+                           scale=None)
+            self.ax.quiver(equ[0, 0], equ[1, 0], -v1[0, 0],
+                           -v1[1, 0], 1, pivot=self.get_pivot(w1[0]),
+                           width=0.003,
+                           scale=None)
+            self.ax.quiver(equ[0, 0], equ[1, 0], -v1[0, 1],
+                           -v1[1, 1], 1, pivot=self.get_pivot(w1[1]),
+                           width=0.003,
+                           scale=None)
+            self.ax.quiver(equ[0, 1], equ[1, 1], -v2[0, 0],
+                           -v2[1, 0], 1, pivot=self.get_pivot(w2[0]),
+                           width=0.003,
+                           scale=None)
+            self.ax.quiver(equ[0, 1], equ[1, 1], -v2[0, 1],
+                           -v2[1, 1], 1, pivot=self.get_pivot(w2[1]),
+                           width=0.003,
+                           scale=None)
 
-        ax.set_title(f'a = {params[0]}, b = {params[1]}')
-        fig.canvas.draw()
-        ax.callbacks.connect('xlim_changed', on_xaxes_change)
-        ax.callbacks.connect('ylim_changed', on_yaxes_change)
+        self.ax.set_title(f'a = {self.params[0]}, b = {self.params[1]}')
+        self.fig.canvas.draw()
+        self.ax.callbacks.connect('xlim_changed', self.on_xaxes_change)
+        self.ax.callbacks.connect('ylim_changed', self.on_yaxes_change)
 
-    def on_key_press(event):
-        if event.key == 'right' and params[0] < 1:
+    def on_key_press(self, event):
+        if event.key == 'right' and self.params[0] < 1:
             print('Increasing alpha')
-            params[0] += 0.1
-            replot()
-        if event.key == 'left' and params[0] > 0:
+            self.params[0] += 0.1
+            self.replot()
+        if event.key == 'left' and self.params[0] > 0:
             print('Decreasing alpha')
-            params[0] -= 0.1
-            replot()
-        if event.key == 'up' and params[1] < 1:
+            self.params[0] -= 0.1
+            self.replot()
+        if event.key == 'up' and self.params[1] < 1:
             print('Increasing betha')
-            params[1] += 0.1
-            replot()
-        if event.key == 'down' and params[1] > 0:
+            self.params[1] += 0.1
+            self.replot()
+        if event.key == 'down' and self.params[1] > 0:
             print('Decreasing betha')
-            params[1] -= 0.1
-            replot()
+            self.params[1] -= 0.1
+            self.replot()
         if event.key == 'r':
-            print(xrange)
+            print(self.xrange)
 
-    def on_xaxes_change(event):
-        global xrange
-        xrange = event.get_xlim()
-        print(xrange)
+    def on_xaxes_change(self, event):
+        self.xrange = event.get_xlim()
+        self.ax.set_xlim(self.xrange)
 
-    def on_yaxes_change(event):
-        global yrange
-        yrange = event.get_ylim()
-
-    fig.canvas.mpl_connect('key_press_event', on_key_press)
-    replot()
+    def on_yaxes_change(self, event):
+        self.yrange = event.get_ylim()
+        self.ax.set_ylim(self.yrange)
 
 
 def analysis():
@@ -188,14 +189,14 @@ def analysis():
     system.add_function(map_f, core.MAP)
     system.manifold = manifold
 
-    test_vector_field(system)
+    analysis_o = Analysis(system)
 
     plt.show()
 
 
 def compiled_analysis():
     system = pynl_bind.GetSystemDescriptor()
-    test_vector_field(system, True)
+    analysis_o = Analysis(system, True)
     plt.show()
 
 
