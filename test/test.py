@@ -88,19 +88,42 @@ class Analysis:
                  yrange: List[float],
                  sampling_points: List[int],
                  compiled: bool = False):
+
+        # system properties
         self.params = params
+        self.system = system
+        self.compiled = compiled
+        self.x0 = [0., 0.]
+
+        # vector field properties
         self.xrange = xrange
         self.yrange = yrange
         self.sampling_points = sampling_points
+
+        # plot window properties
         self.fig, self.ax = plt.subplots()
         self.fig.canvas.mpl_connect('key_press_event', self.on_key_press)
-        self.system = system
-        self.compiled = compiled
-        self.plot_vf()
         self.recompute = True
+
+        self.plot_vf()
+
+    def traiectory(self, points=10000, step=1e-3) -> List[List[float]]:
+        if self.compiled:
+            x0 = pynl_bind.traiectory(self.system, self.x0, self.params,
+                                      points, step)
+        else:
+            x0 = core.traiectory(self.system, np.array(self.x0), self.params,
+                                 points, step)
+        return x0
 
     def get_pivot(self, eig: float) -> str:
         return 'tip' if eig < 0 else 'tail'
+
+    def plot_connect(self):
+        '''
+        Restore the callbacks of the plot window after a redraw
+        '''
+        pass
 
     def plot_vf(self):
         if self.compiled:
@@ -108,10 +131,10 @@ class Analysis:
                                            self.sampling_points, self.params)
         else:
             vf = core.vector_field(self.system,
-                    self.params,
-                    self.xrange,
-                    self.yrange,
-                    self.sampling_points)
+                                   self.params,
+                                   self.xrange,
+                                   self.yrange,
+                                   self.sampling_points)
 
         self.ax.clear()
         plotting.vector_field(vf, self.xrange, self.yrange,
@@ -119,8 +142,10 @@ class Analysis:
 
         equ_exist, equ = equilibrium_points(self.params)
         if equ_exist:
-            if equ[0,0] > self.xrange[0] and equ[0,0] < self.xrange[1] and \
-               equ[1,0] > self.yrange[0] and equ[1,0] < self.yrange[1]:
+
+            if equ[0, 0] > self.xrange[0] and equ[0, 0] < self.xrange[1] and \
+               equ[1, 0] > self.yrange[0] and equ[1, 0] < self.yrange[1]:
+
                 self.ax.scatter(equ[0, 0], equ[1, 0])
                 w1, v1 = np.linalg.eig(f_jac(equ[:, 0], self.params))
                 self.ax.quiver(equ[0, 0], equ[1, 0], v1[0, 0],
@@ -139,8 +164,9 @@ class Analysis:
                                -v1[1, 1], 1, pivot=self.get_pivot(w1[1]),
                                width=0.003,
                                scale=None)
-            if equ[0,1] > self.xrange[0] and equ[0,1] < self.xrange[1] and \
-               equ[1,1] > self.yrange[0] and equ[1,1] < self.yrange[1]:
+            if equ[0, 1] > self.xrange[0] and equ[0, 1] < self.xrange[1] and \
+               equ[1, 1] > self.yrange[0] and equ[1, 1] < self.yrange[1]:
+
                 self.ax.scatter(equ[0, 1], equ[1, 1])
                 w2, v2 = np.linalg.eig(f_jac(equ[:, 1], self.params))
                 self.ax.quiver(equ[0, 1], equ[1, 1], v2[0, 0],
@@ -185,7 +211,6 @@ class Analysis:
         if event.key == 'a':
             self.recompute = not self.recompute
             print(f'Recumpute: {"ON" if self.recompute else "OFF"}')
-            
 
     def on_xaxes_change(self, event):
         if self.recompute == True:
@@ -197,10 +222,13 @@ class Analysis:
             self.yrange = event.get_ylim()
             self.plot_vf()
 
+
+# starting paramaters and properties
 params = [0.5, 0.2]
 xrange = [-90., 40.]
 yrange = [-100, 30.]
 sampling_points = [30, 30]
+
 
 def analysis():
 
@@ -217,7 +245,6 @@ def analysis():
                           yrange,
                           sampling_points,
                           False)
-
 
     plt.show()
 
