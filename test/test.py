@@ -70,81 +70,95 @@ def equilibrium_points(params: List[float]) -> Tuple[bool, np.ndarray]:
 
 '''
 The analysis of the system follows this steps:
-    - plot of the vector field of the system varying with parameters
-      and plot of the equilibrium points if any with associated jacobian's
-      eigenvector and direction (given by eigenvalues)
-    - computation of the transient and eventually plot of it selecting the
-      initial condition in the state space
-    - plot of the eventual limit cycle
+    [X] plot of the vector field of the system varying with parameters
+        and plot of the equilibrium points if any with associated jacobian's
+        eigenvector and direction (given by eigenvalues)
+    [ ] computation of the transient and eventually plot of it selecting the
+        initial condition in the state space
+    [ ]   plot of the eventual limit cycle
 '''
 
 
 class Analysis:
-    params = [0.5, 0.2]
-    xrange = [-90., 40.]
-    yrange = [-100, 30.]
-    sampling_points = [30, 30]
-    system: Union[core.SystemDescriptor, pynl_bind.CompiledSystemDescriptor]
-
     def __init__(self,
-                 system: Union[core.SystemDescriptor, pynl_bind.CompiledSystemDescriptor],
+                 system: Union[core.SystemDescriptor,
+                               pynl_bind.CompiledSystemDescriptor],
+                 params: List[float],
+                 xrange: List[float],
+                 yrange: List[float],
+                 sampling_points: List[int],
                  compiled: bool = False):
+        self.params = params
+        self.xrange = xrange
+        self.yrange = yrange
+        self.sampling_points = sampling_points
         self.fig, self.ax = plt.subplots()
         self.fig.canvas.mpl_connect('key_press_event', self.on_key_press)
         self.system = system
         self.compiled = compiled
-        self.replot()
+        self.plot_vf()
+        self.recompute = True
 
     def get_pivot(self, eig: float) -> str:
         return 'tip' if eig < 0 else 'tail'
 
-    def replot(self):
+    def plot_vf(self):
         if self.compiled:
             vf = pynl_bind.vector_field_2d(self.system, self.xrange, self.yrange,
                                            self.sampling_points, self.params)
         else:
-            vf = core.vector_field(self.system, self.params, self.xrange, self.yrange,
-                                   self.sampling_points)
+            vf = core.vector_field(self.system,
+                    self.params,
+                    self.xrange,
+                    self.yrange,
+                    self.sampling_points)
+
         self.ax.clear()
         plotting.vector_field(vf, self.xrange, self.yrange,
                               self.sampling_points, self.ax)
+
         equ_exist, equ = equilibrium_points(self.params)
         if equ_exist:
-            self.ax.scatter(equ[0, :], equ[1, :])
-            w1, v1 = np.linalg.eig(f_jac(equ[:, 0], self.params))
-            w2, v2 = np.linalg.eig(f_jac(equ[:, 1], self.params))
-            self.ax.quiver(equ[0, 0], equ[1, 0], v1[0, 0],
-                           v1[1, 0], 1, pivot=self.get_pivot(w1[0]),
-                           width=0.003,
-                           scale=None)
-            self.ax.quiver(equ[0, 0], equ[1, 0], v1[0, 1],
-                           v1[1, 1], 1, pivot=self.get_pivot(w1[1]),
-                           width=0.003,
-                           scale=None)
-            self.ax.quiver(equ[0, 1], equ[1, 1], v2[0, 0],
-                           v2[1, 0], 1, pivot=self.get_pivot(w2[0]),
-                           width=0.003,
-                           scale=None)
-            self.ax.quiver(equ[0, 1], equ[1, 1], v2[0, 1],
-                           v2[1, 1], 1, pivot=self.get_pivot(w2[1]),
-                           width=0.003,
-                           scale=None)
-            self.ax.quiver(equ[0, 0], equ[1, 0], -v1[0, 0],
-                           -v1[1, 0], 1, pivot=self.get_pivot(w1[0]),
-                           width=0.003,
-                           scale=None)
-            self.ax.quiver(equ[0, 0], equ[1, 0], -v1[0, 1],
-                           -v1[1, 1], 1, pivot=self.get_pivot(w1[1]),
-                           width=0.003,
-                           scale=None)
-            self.ax.quiver(equ[0, 1], equ[1, 1], -v2[0, 0],
-                           -v2[1, 0], 1, pivot=self.get_pivot(w2[0]),
-                           width=0.003,
-                           scale=None)
-            self.ax.quiver(equ[0, 1], equ[1, 1], -v2[0, 1],
-                           -v2[1, 1], 1, pivot=self.get_pivot(w2[1]),
-                           width=0.003,
-                           scale=None)
+            if equ[0,0] > self.xrange[0] and equ[0,0] < self.xrange[1] and \
+               equ[1,0] > self.yrange[0] and equ[1,0] < self.yrange[1]:
+                self.ax.scatter(equ[0, 0], equ[1, 0])
+                w1, v1 = np.linalg.eig(f_jac(equ[:, 0], self.params))
+                self.ax.quiver(equ[0, 0], equ[1, 0], v1[0, 0],
+                               v1[1, 0], 1, pivot=self.get_pivot(w1[0]),
+                               width=0.003,
+                               scale=None)
+                self.ax.quiver(equ[0, 0], equ[1, 0], v1[0, 1],
+                               v1[1, 1], 1, pivot=self.get_pivot(w1[1]),
+                               width=0.003,
+                               scale=None)
+                self.ax.quiver(equ[0, 0], equ[1, 0], -v1[0, 0],
+                               -v1[1, 0], 1, pivot=self.get_pivot(w1[0]),
+                               width=0.003,
+                               scale=None)
+                self.ax.quiver(equ[0, 0], equ[1, 0], -v1[0, 1],
+                               -v1[1, 1], 1, pivot=self.get_pivot(w1[1]),
+                               width=0.003,
+                               scale=None)
+            if equ[0,1] > self.xrange[0] and equ[0,1] < self.xrange[1] and \
+               equ[1,1] > self.yrange[0] and equ[1,1] < self.yrange[1]:
+                self.ax.scatter(equ[0, 1], equ[1, 1])
+                w2, v2 = np.linalg.eig(f_jac(equ[:, 1], self.params))
+                self.ax.quiver(equ[0, 1], equ[1, 1], v2[0, 0],
+                               v2[1, 0], 1, pivot=self.get_pivot(w2[0]),
+                               width=0.003,
+                               scale=None)
+                self.ax.quiver(equ[0, 1], equ[1, 1], v2[0, 1],
+                               v2[1, 1], 1, pivot=self.get_pivot(w2[1]),
+                               width=0.003,
+                               scale=None)
+                self.ax.quiver(equ[0, 1], equ[1, 1], -v2[0, 0],
+                               -v2[1, 0], 1, pivot=self.get_pivot(w2[0]),
+                               width=0.003,
+                               scale=None)
+                self.ax.quiver(equ[0, 1], equ[1, 1], -v2[0, 1],
+                               -v2[1, 1], 1, pivot=self.get_pivot(w2[1]),
+                               width=0.003,
+                               scale=None)
 
         self.ax.set_title(f'a = {self.params[0]}, b = {self.params[1]}')
         self.fig.canvas.draw()
@@ -155,30 +169,38 @@ class Analysis:
         if event.key == 'right' and self.params[0] < 1:
             print('Increasing alpha')
             self.params[0] += 0.1
-            self.replot()
+            self.plot_vf()
         if event.key == 'left' and self.params[0] > 0:
             print('Decreasing alpha')
             self.params[0] -= 0.1
-            self.replot()
+            self.plot_vf()
         if event.key == 'up' and self.params[1] < 1:
             print('Increasing betha')
             self.params[1] += 0.1
-            self.replot()
+            self.plot_vf()
         if event.key == 'down' and self.params[1] > 0:
             print('Decreasing betha')
             self.params[1] -= 0.1
-            self.replot()
-        if event.key == 'r':
-            print(self.xrange)
+            self.plot_vf()
+        if event.key == 'a':
+            self.recompute = not self.recompute
+            print(f'Recumpute: {"ON" if self.recompute else "OFF"}')
+            
 
     def on_xaxes_change(self, event):
-        self.xrange = event.get_xlim()
-        self.ax.set_xlim(self.xrange)
+        if self.recompute == True:
+            self.xrange = event.get_xlim()
+            self.plot_vf()
 
     def on_yaxes_change(self, event):
-        self.yrange = event.get_ylim()
-        self.ax.set_ylim(self.yrange)
+        if self.recompute == True:
+            self.yrange = event.get_ylim()
+            self.plot_vf()
 
+params = [0.5, 0.2]
+xrange = [-90., 40.]
+yrange = [-100, 30.]
+sampling_points = [30, 30]
 
 def analysis():
 
@@ -189,14 +211,25 @@ def analysis():
     system.add_function(map_f, core.MAP)
     system.manifold = manifold
 
-    analysis_o = Analysis(system)
+    analysis_o = Analysis(system,
+                          params,
+                          xrange,
+                          yrange,
+                          sampling_points,
+                          False)
+
 
     plt.show()
 
 
 def compiled_analysis():
     system = pynl_bind.GetSystemDescriptor()
-    analysis_o = Analysis(system, True)
+    analysis_o = Analysis(system,
+                          params,
+                          xrange,
+                          yrange,
+                          sampling_points,
+                          True)
     plt.show()
 
 
