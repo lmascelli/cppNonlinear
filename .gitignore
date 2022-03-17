@@ -21,3 +21,9 @@ test/nonlinear/__init__.py
 test/nonlinear/core.py
 test/nonlinear/plotting.py
 .gitignore
+.cache/clangd/index/global.hpp.24F05F2CE37087FD.idx
+.cache/clangd/index/nonlinear.cpp.BC0FD71C029FDC6C.idx
+.cache/clangd/index/nonlinear.hpp.B37645C3980A71A7.idx
+.cache/clangd/index/pynl.cpp.61B55813BF217F86.idx
+.cache/clangd/index/pynl.hpp.86A5BADF83BF2418.idx
+.cache/clangd/index/system_test.cpp.3569737231CD0DE5.idx

@@ -252,7 +252,6 @@ mat **vector_field_2d(SystemDescriptor &system, double xmin,
                       uint x_points, uint y_points, mat params)
 {
   mat **ret = new mat *[x_points * y_points];
-
   const double dx = (xmax - xmin) / (double)x_points;
   const double dy = (ymax - ymin) / (double)y_points;
 
