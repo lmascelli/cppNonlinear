@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, Slider
+from matplotlib.animation import FuncAnimation
 import numpy as np
 
 from nonlinear import core, plotting, pynl_bind
@@ -22,7 +23,7 @@ f = 4
 def fun(x: np.ndarray, params: List[float]) -> np.ndarray:
 
     return np.array([
-        a*x[0]*x[0] + b*x[0]+c - x[1],
+        a*x[0]*x[0] + b*x[0] + c - x[1],
         params[0]*(params[1]*x[0] - x[1])
     ])
 
@@ -103,18 +104,37 @@ class Analysis:
         # plot window properties
         self.fig, self.ax = plt.subplots()
         self.fig.canvas.mpl_connect('key_press_event', self.on_key_press)
+        self.fig.canvas.mpl_connect('button_press_event', self.animate_traiectory)
         self.recompute = True
+        self.traiectoryMode = False
 
         self.plot_vf()
 
     def traiectory(self, points=10000, step=1e-3) -> List[List[float]]:
         if self.compiled:
-            x0 = pynl_bind.traiectory(self.system, self.x0, self.params,
+            t = pynl_bind.traiectory(self.system, self.x0, self.params,
                                       points, step)
         else:
-            x0 = core.traiectory(self.system, np.array(self.x0), self.params,
+            t = core.traiectory(self.system, np.array(self.x0), self.params,
                                  points, step)
-        return x0
+            t = t.tolist()
+        return t
+
+    def animate_traiectory(self,event):
+        print(event.xdata, event.ydata)
+        self.x0 = [event.xdata, event.ydata]
+        if self.traiectoryMode:
+            t = self.traiectory()
+            nframes = int(len(t[0])/100)
+            line, = self.ax.plot([self.x0[0]], [self.x0[1]], lw=3)
+            def func(frame:int):
+                xdata = t[0][0:frame*100]
+                ydata = t[1][0:frame*100]
+
+                line.set_data(xdata, ydata)
+                self.fig.canvas.draw()
+                return line,
+            self.anim = FuncAnimation(self.fig, func, nframes, blit=True, interval=1)
 
     def get_pivot(self, eig: float) -> str:
         return 'tip' if eig < 0 else 'tail'
@@ -123,7 +143,8 @@ class Analysis:
         '''
         Restore the callbacks of the plot window after a redraw
         '''
-        pass
+        self.ax.callbacks.connect('xlim_changed', self.on_xaxes_change)
+        self.ax.callbacks.connect('ylim_changed', self.on_yaxes_change)
 
     def plot_vf(self):
         if self.compiled:
@@ -188,8 +209,6 @@ class Analysis:
 
         self.ax.set_title(f'a = {self.params[0]}, b = {self.params[1]}')
         self.fig.canvas.draw()
-        self.ax.callbacks.connect('xlim_changed', self.on_xaxes_change)
-        self.ax.callbacks.connect('ylim_changed', self.on_yaxes_change)
 
     def on_key_press(self, event):
         if event.key == 'right' and self.params[0] < 1:
@@ -211,6 +230,9 @@ class Analysis:
         if event.key == 'a':
             self.recompute = not self.recompute
             print(f'Recumpute: {"ON" if self.recompute else "OFF"}')
+        if event.key == 't':
+            self.traiectoryMode = not self.traiectoryMode
+            print(f'Trayectory mode: {"ON" if self.traiectoryMode else "OFF"}')
 
     def on_xaxes_change(self, event):
         if self.recompute == True:
