@@ -42,11 +42,8 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
             (SystemDescriptor *)PyCapsule_GetPointer(system_capsule,
                                                      "system_test.system");
         mat t = traiectory(*system, x0, params, n_points, step);
-        printf("n: %lld\n", t.n_cols);
-        PyObject *t_ret;
         PyObject **x_ret = new PyObject *[system_size];
         tmat_ret = PyList_New(system_size);
-        t_ret = PyList_New(t.n_cols);
         for (uint row = 0; row < system_size; row++)
             x_ret[row] = PyList_New(t.n_cols);
         for (uint col = 0; col < t.n_cols; col++)
@@ -55,7 +52,6 @@ static PyObject *pynl_traiectory(PyObject *self, PyObject *args)
                 PyList_SET_ITEM(x_ret[row], col,
                                 PyFloat_FromDouble(t(row, col)));
         }
-        PyList_SetItem(tmat_ret, 0, t_ret);
         for (uint row = 0; row < system_size; row++)
             PyList_SetItem(tmat_ret, row, x_ret[row]);
     }

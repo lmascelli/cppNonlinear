@@ -80,7 +80,7 @@ IntegrationResult integrate(SystemDescriptor &system, mat x0, mat params,
   {
     if (method == "euler")
     {
-      ret.x = step * system.GetFunction(current_state)(x0, params);
+      ret.x = x0 + step * system.GetFunction(current_state)(x0, params);
       uint new_state = system.manifold(ret.x);
       if (new_state != current_state)
         ret.event = new_state;
@@ -92,7 +92,7 @@ IntegrationResult integrate(SystemDescriptor &system, mat x0, mat params,
       mat k1 = f(x0 + 0.5 * step * k0, params) * step;
       mat k2 = f(x0 + 0.5 * step * k1, params) * step;
       mat k3 = f(x0 + step * k2, params) * step;
-      ret.x = 1. / 6. * (k0 + 2 * k1 + k2 + k3);
+      ret.x = x0 + 1. / 6. * (k0 + 2 * k1 + k2 + k3);
 
       uint new_state = system.manifold(x0);
       if (new_state != current_state)

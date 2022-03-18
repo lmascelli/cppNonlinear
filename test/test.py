@@ -104,7 +104,8 @@ class Analysis:
         # plot window properties
         self.fig, self.ax = plt.subplots()
         self.fig.canvas.mpl_connect('key_press_event', self.on_key_press)
-        self.fig.canvas.mpl_connect('button_press_event', self.animate_traiectory)
+        self.fig.canvas.mpl_connect(
+            'button_press_event', self.animate_traiectory)
         self.recompute = True
         self.traiectoryMode = False
 
@@ -113,28 +114,35 @@ class Analysis:
     def traiectory(self, points=10000, step=1e-3) -> List[List[float]]:
         if self.compiled:
             t = pynl_bind.traiectory(self.system, self.x0, self.params,
-                                      points, step)
+                                     points, step)
         else:
             t = core.traiectory(self.system, np.array(self.x0), self.params,
-                                 points, step)
+                                points, step)
             t = t.tolist()
         return t
 
-    def animate_traiectory(self,event):
+    def animate_traiectory(self, event):
         print(event.xdata, event.ydata)
         self.x0 = [event.xdata, event.ydata]
         if self.traiectoryMode:
             t = self.traiectory()
             nframes = int(len(t[0])/100)
             line, = self.ax.plot([self.x0[0]], [self.x0[1]], lw=3)
-            def func(frame:int):
+
+            def func(frame: int):
                 xdata = t[0][0:frame*100]
                 ydata = t[1][0:frame*100]
-
+                print(f'frame: {xdata}')
                 line.set_data(xdata, ydata)
                 self.fig.canvas.draw()
                 return line,
-            self.anim = FuncAnimation(self.fig, func, nframes, blit=True, interval=1)
+            self.anim = FuncAnimation(
+                self.fig, func, nframes, blit=True, interval=1)
+        else:
+            plt.figure()
+            t = self.traiectory()
+            plt.plot(t[0], t[1])
+            plt.show()
 
     def get_pivot(self, eig: float) -> str:
         return 'tip' if eig < 0 else 'tail'
@@ -273,13 +281,16 @@ def analysis():
 
 def compiled_analysis():
     system = pynl_bind.GetSystemDescriptor()
-    analysis_o = Analysis(system,
-                          params,
-                          xrange,
-                          yrange,
-                          sampling_points,
-                          True)
+    # analysis_o = Analysis(system,
+    #                       params,
+    #                       xrange,
+    #                       yrange,
+    #                       sampling_points,
+    #                       True)
+    tra = pynl_bind.traiectory(system, [0., 0.], params, 10000, 1e-3)
+    plt.plot(tra[0], tra[1])
     plt.show()
 
 
 compiled_analysis()
+# analysis()
