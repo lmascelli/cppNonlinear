@@ -65,7 +65,7 @@ def equilibrium_points(params: List[float]) -> Tuple[bool, np.ndarray]:
 
 ###############################################################################
 #
-#                               Analysis script
+#                               Analysis Manager
 #
 ###############################################################################
 
@@ -74,7 +74,7 @@ The analysis of the system follows this steps:
     [X] plot of the vector field of the system varying with parameters
         and plot of the equilibrium points if any with associated jacobian's
         eigenvector and direction (given by eigenvalues)
-    [ ] computation of the transient and eventually plot of it selecting the
+    [X] computation of the transient and eventually plot of it selecting the
         initial condition in the state space
     [ ]   plot of the eventual limit cycle
 '''
@@ -111,7 +111,12 @@ class Analysis:
 
         self.plot_vf()
 
+    ################## Utility ###################
+
     def traiectory(self, points=10000, step=1e-3) -> List[List[float]]:
+        """
+        Compute a traiectory choosing the method based on compiled flag
+        """
         if self.compiled:
             t = pynl_bind.traiectory(self.system, self.x0, self.params,
                                      points, step)
@@ -121,31 +126,10 @@ class Analysis:
             t = t.tolist()
         return t
 
-    def animate_traiectory(self, event):
-        print(event.xdata, event.ydata)
-        self.x0 = [event.xdata, event.ydata]
-        if self.traiectoryMode:
-            t = self.traiectory()
-            nframes = int(len(t[0])/100)
-            line, = self.ax.plot([self.x0[0]], [self.x0[1]], lw=3)
-
-            def func(frame: int):
-                xdata = t[0][0:frame*100]
-                ydata = t[1][0:frame*100]
-                print(f'frame: {xdata}')
-                line.set_data(xdata, ydata)
-                self.fig.canvas.draw()
-                return line,
-            self.anim = FuncAnimation(
-                self.fig, func, nframes, blit=True, interval=1)
-        else:
-            plt.figure()
-            t = self.traiectory()
-            plt.plot(t[0], t[1])
-            plt.show()
-
     def get_pivot(self, eig: float) -> str:
         return 'tip' if eig < 0 else 'tail'
+
+    ############### Event handling ##################
 
     def plot_connect(self):
         '''
@@ -153,6 +137,48 @@ class Analysis:
         '''
         self.ax.callbacks.connect('xlim_changed', self.on_xaxes_change)
         self.ax.callbacks.connect('ylim_changed', self.on_yaxes_change)
+
+    def on_key_press(self, event):
+        if event.key == 'right' and self.params[0] < 1:
+            print('Increasing alpha')
+            self.params[0] += 0.1
+            self.plot_vf()
+        if event.key == 'left' and self.params[0] > 0:
+            print('Decreasing alpha')
+            self.params[0] -= 0.1
+            self.plot_vf()
+        if event.key == 'up' and self.params[1] < 1:
+            print('Increasing betha')
+            self.params[1] += 0.1
+            self.plot_vf()
+        if event.key == 'down' and self.params[1] > 0:
+            print('Decreasing betha')
+            self.params[1] -= 0.1
+            self.plot_vf()
+        if event.key == 'a':
+            self.recompute = not self.recompute
+            print(f'Recumpute: {"ON" if self.recompute else "OFF"}')
+        if event.key == 't':
+            self.traiectoryMode = not self.traiectoryMode
+            print(f'Trayectory mode: {"ON" if self.traiectoryMode else "OFF"}')
+
+    def on_mouse_press(self, event):
+        print(event.xdata, event.ydata)
+        self.x0 = [event.xdata, event.ydata]
+        if self.traiectoryMode:
+            self.animate_traiectory()
+
+    def on_xaxes_change(self, event):
+        if self.recompute == True:
+            self.xrange = event.get_xlim()
+            self.plot_vf()
+
+    def on_yaxes_change(self, event):
+        if self.recompute == True:
+            self.yrange = event.get_ylim()
+            self.plot_vf()
+
+    ################# Plotting section ################
 
     def plot_vf(self):
         if self.compiled:
@@ -218,39 +244,29 @@ class Analysis:
         self.ax.set_title(f'a = {self.params[0]}, b = {self.params[1]}')
         self.fig.canvas.draw()
 
-    def on_key_press(self, event):
-        if event.key == 'right' and self.params[0] < 1:
-            print('Increasing alpha')
-            self.params[0] += 0.1
-            self.plot_vf()
-        if event.key == 'left' and self.params[0] > 0:
-            print('Decreasing alpha')
-            self.params[0] -= 0.1
-            self.plot_vf()
-        if event.key == 'up' and self.params[1] < 1:
-            print('Increasing betha')
-            self.params[1] += 0.1
-            self.plot_vf()
-        if event.key == 'down' and self.params[1] > 0:
-            print('Decreasing betha')
-            self.params[1] -= 0.1
-            self.plot_vf()
-        if event.key == 'a':
-            self.recompute = not self.recompute
-            print(f'Recumpute: {"ON" if self.recompute else "OFF"}')
-        if event.key == 't':
-            self.traiectoryMode = not self.traiectoryMode
-            print(f'Trayectory mode: {"ON" if self.traiectoryMode else "OFF"}')
+    def animate_traiectory(self):
+        """
+        Plot a traiectory starting from point clicked in the axes
+        """
+        t = self.traiectory()
+        nframes = int(len(t[0])/100)
+        line, = self.ax.plot([self.x0[0]], [self.x0[1]], lw=3)
 
-    def on_xaxes_change(self, event):
-        if self.recompute == True:
-            self.xrange = event.get_xlim()
-            self.plot_vf()
+        def func(frame: int):
+            xdata = t[0][0:frame*100]
+            ydata = t[1][0:frame*100]
+            line.set_data(xdata, ydata)
+            # self.fig.canvas.draw()
+            return line,
+        self.anim = FuncAnimation(
+            self.fig, func, nframes, blit=True, interval=1, repeat=False)
 
-    def on_yaxes_change(self, event):
-        if self.recompute == True:
-            self.yrange = event.get_ylim()
-            self.plot_vf()
+
+###############################################################################
+#
+#                           Analisys section
+#
+###############################################################################
 
 
 # starting paramaters and properties
@@ -281,14 +297,12 @@ def analysis():
 
 def compiled_analysis():
     system = pynl_bind.GetSystemDescriptor()
-    # analysis_o = Analysis(system,
-    #                       params,
-    #                       xrange,
-    #                       yrange,
-    #                       sampling_points,
-    #                       True)
-    tra = pynl_bind.traiectory(system, [0., 0.], params, 10000, 1e-3)
-    plt.plot(tra[0], tra[1])
+    analysis_o = Analysis(system,
+                          params,
+                          xrange,
+                          yrange,
+                          sampling_points,
+                          True)
     plt.show()
 
 
