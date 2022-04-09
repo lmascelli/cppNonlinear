@@ -151,11 +151,13 @@ IntegrationResult integrate(SystemDescriptor &system, mat x0, mat params,
  * @param method: the algorithm to be used; possible values:
  *                - "euler": Euler's method
  *                - "rk3": Runge-Kutta 3rd order
+ * @param data: a pointer do a location in memory where to store the data
  * @returns an IntegrationResult struct with next value and event if any
  */
 
-mat traiectory(SystemDescriptor &system, mat x0, mat params,
-               uint n_points, double step, std::string method = "euler");
+mat *traiectory(SystemDescriptor &system, mat x0, mat params,
+                uint n_points, double step, std::string method = "euler",
+                double **data = nullptr);
 
 /**
  * @brief The jacboian of the f function

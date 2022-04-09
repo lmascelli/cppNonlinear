@@ -106,15 +106,17 @@ IntegrationResult integrate(SystemDescriptor &system, mat x0, mat params,
 /**
  * TODO check if the function switch the current label in case of manifold cross.
  */
-mat traiectory(SystemDescriptor &system, mat x0, mat params,
-               uint n_points, double step, std::string method)
+mat *traiectory(SystemDescriptor &system, mat x0, mat params,
+                uint n_points, double step, std::string method, double **data)
 {
   const uint system_size = x0.n_rows;
-  mat ret = arma::zeros(system_size, n_points + 1);
+
+  *data = new double[system_size * (n_points + 1)];
+  mat *ret = new arma::mat(*data, system_size, n_points + 1, false, true);
 
   auto setCol = [&ret](uint pos, mat x) mutable
   {
-    ret.col(pos) = x;
+    ret->col(pos) = x;
   };
   for (uint i = 0; i <= n_points; i++)
   {

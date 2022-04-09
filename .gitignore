@@ -27,3 +27,9 @@ test/nonlinear/plotting.py
 .cache/clangd/index/pynl.cpp.61B55813BF217F86.idx
 .cache/clangd/index/pynl.hpp.86A5BADF83BF2418.idx
 .cache/clangd/index/system_test.cpp.3569737231CD0DE5.idx
+.cache/clangd/index/global.hpp.105C28D7A09F285E.idx
+.cache/clangd/index/nonlinear.cpp.C84D8F72DA25A63F.idx
+.cache/clangd/index/nonlinear.hpp.1A40C7C19ECFC530.idx
+.cache/clangd/index/pynl.cpp.AFB0CD21472CE4E8.idx
+.cache/clangd/index/pynl.hpp.666FA2146221595B.idx
+.cache/clangd/index/system_test.cpp.77D84E85989E9DCD.idx
