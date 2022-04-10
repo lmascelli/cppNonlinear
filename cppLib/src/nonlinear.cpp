@@ -249,27 +249,32 @@ mat jacobian(System_func f, mat x, mat params, double h)
 //   return W;
 // }
 
-mat **vector_field_2d(SystemDescriptor &system, double xmin,
-                      double xmax, double ymin, double ymax,
-                      uint x_points, uint y_points, mat params)
+arma::cube *vector_field_2d(SystemDescriptor &system, double xmin,
+                            double xmax, double ymin, double ymax,
+                            uint x_points, uint y_points, mat params, double **data)
 {
-  mat **ret = new mat *[x_points * y_points];
+  *data = new double[x_points * y_points * 2];
   const double dx = (xmax - xmin) / (double)x_points;
   const double dy = (ymax - ymin) / (double)y_points;
+  arma::cube *ret = new arma::cube(*data, x_points, y_points, 2, false, true);
 
   for (uint i = 0; i < x_points; i++)
     for (uint j = 0; j < y_points; j++)
     {
-      ret[j * x_points + i] = new mat(2, 1);
       mat x = {xmin + dx * i, ymin + dy * j};
       uint label = system.manifold(x);
       switch (system.GetType(label))
       {
       case SystemDescriptor::EQUATION:
-        *ret[j * x_points + i] = system.GetFunction(label)(x, params);
-        break;
+      {
+        mat field = system.GetFunction(label)(x, params);
+        (*ret)(i, j, 1) = field(1);
+        (*ret)(i, j, 0) = field(0);
+      }
+      break;
       case SystemDescriptor::MAP:
-        *ret[j * x_points + i] = arma::zeros(2, 1);
+        (*ret)(i, j, 1) = 0;
+        (*ret)(i, j, 0) = 0;
         break;
       }
     }

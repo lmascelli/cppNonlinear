@@ -213,6 +213,6 @@ mat jacobian(System_func f, mat x, mat params, double h = 1e-6);
 //              mat *traiectory = nullptr, std::string method = "euler");
 
 // TODO change implementation for avoiding copy of return vector
-mat **vector_field_2d(SystemDescriptor &system, double xmin,
+arma::cube*vector_field_2d(SystemDescriptor &system, double xmin,
                       double xmax, double ymin, double ymax,
-                      uint x_points, uint y_points, mat params);
+                      uint x_points, uint y_points, mat params, double **data);

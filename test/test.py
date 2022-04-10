@@ -113,7 +113,7 @@ class Analysis:
 
     ################## Utility ###################
 
-    def traiectory(self, points=10, step=1e-3) -> np.ndarray:
+    def traiectory(self, points=10000, step=1e-3) -> np.ndarray:
         """
         Compute a traiectory choosing the method based on compiled flag
         """
@@ -121,10 +121,9 @@ class Analysis:
         if self.compiled:
             t = pynl_bind.traiectory(self.system, self.x0, self.params,
                                      points, step)
-            print(t)
         else:
             t = core.traiectory(self.system, np.array(self.x0), self.params,
-                                points, step)
+                                points, step).T
         return t
 
     def get_pivot(self, eig: float) -> str:
@@ -249,8 +248,7 @@ class Analysis:
         """
         Plot a traiectory starting from point clicked in the axes
         """
-        t = self.traiectory()
-        print('After traiectory')
+        t = self.traiectory().T
         nframes = int(len(t[0])/100)
         line, = self.ax.plot([self.x0[0]], [self.x0[1]], lw=3)
 
@@ -299,17 +297,19 @@ def analysis():
 
 def compiled_analysis():
     system = pynl_bind.GetSystemDescriptor()
-    # analysis_o = Analysis(system,
-    #                       params,
-    #                       xrange,
-    #                       yrange,
-    #                       sampling_points,
-    #                       True)
-    # plt.show()
-    print('here')
-    t = pynl_bind.traiectory(system, [1., 1.], [0.1, 0.2], 10, 1e-3)
-    print(t)
+    _analysis_o = Analysis(system,
+                           params,
+                           xrange,
+                           yrange,
+                           sampling_points,
+                           True)
+    plt.show()
 
 
-compiled_analysis()
-# analysis()
+def test():
+    print(pynl_bind.test(3))
+
+
+# compiled_analysis()
+analysis()
+# test()

@@ -109,6 +109,7 @@ class EquPointAnalisys:
         else:
             self.type = EquPointAnalisys.UNKNOWN
 
+
 ######################################################
 #
 #                     FUNCTIONS
@@ -156,11 +157,11 @@ def traiectory(system: SystemDescriptor, x0: np.ndarray, params: List[float],
 # Compute the vector field of a 2D system in a given param space
 def vector_field(system: SystemDescriptor, params: List[float],
                  xrange: List[float], yrange: List[float],
-                 points: List[int]) -> List[List[float]]:
+                 points: List[int]) -> np.ndarray:
     x = np.linspace(xrange[0], xrange[1], points[0])
     y = np.linspace(yrange[0], yrange[1], points[1])
 
-    ret: List[List[float]] = []
+    ret = np.ndarray(shape=(2, points[0], points[1]))
 
     for j in range(0, points[1]):
         for i in range(0, points[0]):
@@ -168,9 +169,9 @@ def vector_field(system: SystemDescriptor, params: List[float],
             label = system.manifold(point)
             if system.functions[label].type == EQUATION:
                 v = system.functions[label].f(point, params)
-                ret.append([v[0], v[1]])
+                ret[:, j, i] = np.array([v[0], v[1]])
             else:
-                ret.append([0, 0])
+                ret[:, j, i] = np.zeros(2)
     return ret
 
 
