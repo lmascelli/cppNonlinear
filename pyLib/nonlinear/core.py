@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List, Callable, Tuple
+from typing import List, Callable, Optional, Tuple
 
 
 # custom defined machine precision value
@@ -26,9 +26,12 @@ INTEGRATION_METHOD = "Euler"
 
 class System_Function:
     def __init__(self, f: Callable[[np.ndarray, List[float]], np.ndarray],
-                 type: int):
+                 type: int,
+                 jacobian: Optional[Callable[[np.ndarray, List[float]],
+                                             np.ndarray]] = None):
         self.f = f
         self.type = type
+        self.jacobian = jacobian
 
 # A class for managing the functions ruling the system
 # Used in the following analysis functions
@@ -46,8 +49,11 @@ class SystemDescriptor:
     def add_function(self,
                      function: Callable[[np.ndarray, List[float]],
                                         np.ndarray],
-                     function_type: int) -> None:
-        self.functions.append(System_Function(function, function_type))
+                     function_type: int,
+                     jacobian: Optional[Callable[[np.ndarray, List[float]],
+                                        np.ndarray]] = None) -> None:
+        self.functions.append(System_Function(
+            function, function_type, jacobian))
         self.function_number += 1
 
 
@@ -120,6 +126,24 @@ class EquPointAnalisys:
 # TODO implement also Runge-Kutta algorithm
 
 
+def jacobian(fun: Callable[[np.ndarray, List[float]], np.ndarray],
+             params: List[float],  x: np.ndarray, step: float = 1e-9) -> np.ndarray:
+
+    ret = np.zeros(shape=(x.size, x.size))
+    x = np.reshape(x, (x.size, 1))
+
+    def f(y, h):
+        res = (fun(y+h, params) - fun(y-h, params))/(2*step)
+        return np.reshape(res, (1, x.size))
+
+    for i in range(x.size):
+        h = np.zeros(shape=(x.size, 1))
+        h[i, 0] = 1*step
+        ret[i, :] = f(x, h)
+        pass
+    return ret.T
+
+
 def integrate(system: SystemDescriptor, x0: np.ndarray, params: List[float],
               step: float) -> Tuple[np.ndarray, int]:
     """
@@ -175,6 +199,26 @@ def vector_field(system: SystemDescriptor, params: List[float],
     return ret
 
 
-def shooting(system: SystemDescriptor, x0: np.ndarray, params: List[float],
-             T: float, step: float) -> None:
-    pass
+def transition_matrix(system: SystemDescriptor, x0: np.ndarray, params: List[float],
+                      T: float, step: float) -> np.ndarray:
+    system_size = x0.shape[0]
+    print(f'system_size: {system_size}')  # DEBUG
+
+    ret = np.ones(shape=(system_size, system_size))
+    acc = np.zeros(shape=(system_size, system_size))
+
+    n_steps: int = int(np.floor(T/step))
+    print(f'overcoming the period by t: {step*n_steps-T}')
+
+    current_flag = system.manifold(x0)
+    for i in range(n_steps):
+        jac = system.functions[current_flag].jacobian
+        if not jac is None:
+            acc += jac(x0, params)*step
+        else:
+            acc += jacobian(system.functions[current_flag].f, params, x0)*step
+        x0, type = integrate(system, x0, params, 1e-3)
+        if not type == current_flag:
+            # saltation matrix
+            pass
+    return ret*acc
