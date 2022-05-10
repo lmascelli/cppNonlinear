@@ -1,18 +1,46 @@
 clear
 
+# SYSTEM SPECIFIC VARIABLES
+
 if ($IsLinux) {
   $python = 'python3'
   $VCPKG_DIR = "~/vcpkg"
+  $GENERATOR = "Ninja"
 } else {
   $python = 'python'
   $VCPKG_DIR = "D:/vcpkg"
+  $GENERATOR = 'Visual Studio 17 2022'
 }
 
-if ($args[0] -eq '--test-py') {
+# ARGUMENT PARSING
+
+$TestPy = $false;
+$Clear = $false;
+
+foreach ($arg in $args)
+{
+  switch($arg) {
+    '--test-py' {$TestPy = $true}
+    '--clear' {$Clear = $true}
+  }
+}
+
+# CLEANING BUILD FILES
+
+if ($Clear) {
+  Remove-Item -Recurse -Path "build"
+}
+
+# RUN JUST PYTHON TEST FILE
+
+if ($TestPy) {
+  echo 'AAA'
   Copy-Item -Recurse -Force -Path "pyLib\nonlinear" -Destination "test"
   Invoke-Expression ($python + ' test/test.py')
-#  Remove-Item -Recurse -Force -Path "test\nonlinear"
 }
+
+# BUILD AND RUN
+
 else {
   if (Test-Path -Path build/CmakeCache.txt -PathType leaf) {
   }
@@ -20,7 +48,7 @@ else {
     mkdir build
     Push-Location build
     $VCPKG_CMAKE = $VCPKG_DIR + "/scripts/buildsystems/vcpkg.cmake"
-    cmake .. -G"Ninja" -DCMAKE_TOOLCHAIN_FILE="$VCPKG_CMAKE" -DCMAKE_EXPORT_COMPILE_COMMANDS=True
+    cmake .. -G"$GENERATOR" -DCMAKE_TOOLCHAIN_FILE="$VCPKG_CMAKE" -DCMAKE_EXPORT_COMPILE_COMMANDS=True
     Pop-Location
   }
 
