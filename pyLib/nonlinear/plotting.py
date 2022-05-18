@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import List, Optional, Union
+from typing import List, Optional
 from . import core, pynl_bind
 
 

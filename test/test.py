@@ -1,39 +1,18 @@
-from nonlinear import core
+from nonlinear import core, analysis
 import numpy as np
 from typing import List
 import matplotlib.pyplot as plt
 
-system = core.SystemDescriptor()
+# LOTKA-VOLTERRA
 
 
-def f(x: np.ndarray, params: List[float]) -> np.ndarray:
-    res = np.array([
-        x[1, 0],
-        params[0]*x[0, 0],
-    ]).reshape(2, 1)
-    return res
+def f(x: np.ndarray, p: List[float]) -> np.ndarray:
+  return np.array([x[0] * (3 - x[0] - 2 * x[1]), x[1] * (2 - x[0] - x[1])])
 
 
-def kj(x: np.ndarray, params: List[float]) -> np.ndarray:
-    return np.array(
-        [
-            2*x[0] + 3*x[1],
-            1*x[0] + 5*x[1]
-        ]
-    )
+system = core.SystemDescriptor.BasicSystem(f, core.EQUATION)
+window_range = [[-3., 3.], [-3., 3.]]
+x0 = np.array([])
 
-
-system.add_function(f, core.EQUATION)
-system.manifold = lambda x: 0
-x0 = np.array([1., 0.]).reshape(2, 1)
-params = [-1.]
-T = 2.0*np.pi
-step = 1e-3
-n_steps = int(T/step)
-
-tm = core.transition_matrix(system, x0, params, T, step)
-t = core.traiectory(system, x0, params, n_steps, step)
-print(np.exp(tm))
-
-plt.plot(t[0, :], t[1, :])
-plt.show()
+manager = analysis.Analysis(system, [], window_range[0], window_range[1],
+                            [100, 100])
