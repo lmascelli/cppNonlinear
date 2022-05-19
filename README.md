@@ -16,7 +16,7 @@
   - Computation:
     - [ ] Structure an analysis class with all data needed for a point in parameter space
       - [X] Software implementation
-        - [ ] Symplify what does not require time as parameter
+        - [X] Symplify what does not require time as parameter
       - [ ] Diagram representation
     - [X] Compute the transient
       - [X] Check if there is a correct switch between system function at manifold crossing
@@ -35,10 +35,16 @@
       - [X] 2D state variable plane
       - [X] State variable vs time
       - [ ] Plots legend and axis labels
+      - [X] Vector field for 2d systems
     - [ ] Store and plot a parameter space analysis
-    - [ ] For a given set of parameter:
-      - [ ] quiver plot of field
-      - [ ] set of traiectory
+  - Analysis manager:
+    - [ ] Make a GUI to facilitate exploring the system
+     - [X] plot in a qt window
+      - [ ] menu items
+        - [X] quit
+        - [X] vector field
+        - [ ] dialog for changing field range
+
 
   - Compilation toolchain stuff:
     - [ ] Make python script installed with binaries by CMake

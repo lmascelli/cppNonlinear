@@ -44,8 +44,8 @@ class SystemDescriptor:
 
   manifold: Callable[[np.ndarray], int]
 
-  def __init__(self, function_number: int = 1) -> None:
-    self.function_number = function_number
+  def __init__(self, system_size: int) -> None:
+    self.system_size = system_size
 
   def add_function(
       self,
@@ -54,10 +54,10 @@ class SystemDescriptor:
       jacobian: Optional[Callable[[np.ndarray, List[float]], np.ndarray]] = None
   ) -> None:
     self.functions.append(System_Function(function, function_type, jacobian))
-    self.function_number += 1
 
   @staticmethod
-  def BasicSystem(f: Callable[[np.ndarray, List[float]], np.ndarray], ft: int):
+  def BasicSystem(f: Callable[[np.ndarray, List[float]], np.ndarray], ft: int,
+                  system_size: int):
     """
     Return a basic SystemDescriptor instance with no manifold and only one 
     function be it an EQUATION or a MAP.
@@ -66,7 +66,7 @@ class SystemDescriptor:
     def manifold(x: np.ndarray) -> int:
       return 0
 
-    system = SystemDescriptor()
+    system = SystemDescriptor(system_size)
     system.add_function(f, ft)
     system.manifold = manifold
     return system
